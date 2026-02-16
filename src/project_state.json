@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Live dashboard app with top-row summary cards; replace the first card ('Total Goals') with a new 'Monthly Target' summary card that sums monthly targets from individual goal cards and matches existing styling/alignment.",
+  "architectural_notes": [
+    "Dashboard already exists and is live with 5 top-row cards; modify only the first card (no layout/data deletion).",
+    "Monthly Target summary value is computed by extracting existing 'Monthly Target' fields from each individual goal card and summing them."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-in-the-top-row-dashboard-summary-cards-frontend-src-components-dashboard-tsx-replace-the-first-card-currently-titled-total-goals-with-a-new-summary-card-titled-monthly-target-without-removing-the-existing-5-card-grid-layout-or-changing-any-existing-goal-data",
+      "title": "In the top-row dashboard summary cards (frontend/src/components/Dashboard.tsx), replace the first card currently titled \"Total Goals\" with a new summary card titled \"Monthly Target\" without removing the existing 5-card grid layout or changing any existing goal data.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-compute-the-monthly-target-summary-value-as-the-automated-sum-of-the-per-goal-monthly-target-amounts-shown-in-the-individual-goal-cards-using-the-same-monthly-target-calculation-rules-as-goalcard-including-deadline-based-monthsremaining-logic-and-the-1-month-remaining-correction-only-include-goals-that-currently-display-a-monthly-target-row-i-e-goals-with-a-deadline-where-the-monthly-target-row-is-rendered-treat-goals-that-do-not-show-a-monthly-target-row-as-contributing-0-to-the-sum",
+      "title": "Compute the \"Monthly Target\" summary value as the automated sum of the per-goal Monthly Target amounts shown in the individual goal cards, using the same monthly-target calculation rules as GoalCard (including deadline-based monthsRemaining logic and the <1 month remaining correction). Only include goals that currently display a Monthly Target row (i.e., goals with a deadline where the monthly target row is rendered); treat goals that do not show a Monthly Target row as contributing 0 to the sum.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-match-styling-and-alignment-of-the-new-monthly-target-summary-card-to-the-existing-dashboard-card-template-1-place-a-calendar-or-repeat-icon-on-the-left-inside-a-10x10-rounded-icon-wrapper-consistent-with-other-cards-2-color-both-the-icon-and-the-main-amount-text-using-the-exact-same-blue-color-used-by-the-goal-cards-monthly-target-value-use-the-existing-text-monthly-target-styling-3-keep-the-card-title-in-the-default-dark-grey-style-used-by-other-card-titles-4-ensure-the-amount-baseline-aligns-with-the-other-top-row-cards-no-vertical-misalignment-vs-total-target-total-saved",
+      "title": "Match styling and alignment of the new \"Monthly Target\" summary card to the existing dashboard card template: (1) place a Calendar or Repeat icon on the LEFT inside a 10x10 rounded icon wrapper, consistent with other cards; (2) color both the icon and the main amount text using the exact same blue color used by the goal cards’ Monthly Target value (use the existing `text-monthly-target` styling); (3) keep the card title in the default dark/grey style used by other card titles; (4) ensure the amount baseline aligns with the other top-row cards (no vertical misalignment vs Total Target/Total Saved).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Replace the first top-row dashboard card ('Total Goals') with a new 'Monthly Target' card that shows the automated sum of all individual goal cards' Monthly Target amounts; use Calendar/Repeat icon on the left in the same style/position as other cards; apply the same blue color used in goal cards for the icon and amount text while keeping the title in default dark/grey; ensure baseline alignment matches other top-row cards; do not delete existing layout or goal data.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Replace first dashboard summary card with Monthly Target aggregate",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

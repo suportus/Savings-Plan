@@ -1,0 +1,70 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-in-the-top-row-dashboard-summary-cards-frontend-src-components-dashboard-tsx-replace-the-first-card-currently-titled-total-goals-with-a-new-summary-card-titled-monthly-target-without-removing-the-existing-5-card-grid-layout-or-changing-any-existing-goal-data",
+      "featureTitle": "In the top-row dashboard summary cards (frontend/src/components/Dashboard.tsx), replace the first card currently titled \"Total Goals\" with a new summary card titled \"Monthly Target\" without removing the existing 5-card grid layout or changing any existing goal data.",
+      "files": [
+        "frontend/src/components/Dashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-compute-the-monthly-target-summary-value-as-the-automated-sum-of-the-per-goal-monthly-target-amounts-shown-in-the-individual-goal-cards-using-the-same-monthly-target-calculation-rules-as-goalcard-including-deadline-based-monthsremaining-logic-and-the-1-month-remaining-correction-only-include-goals-that-currently-display-a-monthly-target-row-i-e-goals-with-a-deadline-where-the-monthly-target-row-is-rendered-treat-goals-that-do-not-show-a-monthly-target-row-as-contributing-0-to-the-sum",
+      "featureTitle": "Compute the \"Monthly Target\" summary value as the automated sum of the per-goal Monthly Target amounts shown in the individual goal cards, using the same monthly-target calculation rules as GoalCard (including deadline-based monthsRemaining logic and the <1 month remaining correction). Only include goals that currently display a Monthly Target row (i.e., goals with a deadline where the monthly target row is rendered); treat goals that do not show a Monthly Target row as contributing 0 to the sum.",
+      "files": [
+        "frontend/src/components/Dashboard.tsx",
+        "frontend/src/components/GoalCard.tsx",
+        "frontend/src/utils/monthlyTarget.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-match-styling-and-alignment-of-the-new-monthly-target-summary-card-to-the-existing-dashboard-card-template-1-place-a-calendar-or-repeat-icon-on-the-left-inside-a-10x10-rounded-icon-wrapper-consistent-with-other-cards-2-color-both-the-icon-and-the-main-amount-text-using-the-exact-same-blue-color-used-by-the-goal-cards-monthly-target-value-use-the-existing-text-monthly-target-styling-3-keep-the-card-title-in-the-default-dark-grey-style-used-by-other-card-titles-4-ensure-the-amount-baseline-aligns-with-the-other-top-row-cards-no-vertical-misalignment-vs-total-target-total-saved",
+      "featureTitle": "Match styling and alignment of the new \"Monthly Target\" summary card to the existing dashboard card template: (1) place a Calendar or Repeat icon on the LEFT inside a 10x10 rounded icon wrapper, consistent with other cards; (2) color both the icon and the main amount text using the exact same blue color used by the goal cards’ Monthly Target value (use the existing `text-monthly-target` styling); (3) keep the card title in the default dark/grey style used by other card titles; (4) ensure the amount baseline aligns with the other top-row cards (no vertical misalignment vs Total Target/Total Saved).",
+      "files": [
+        "frontend/src/components/Dashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "qr-code@1.0.0",
+        "camera@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

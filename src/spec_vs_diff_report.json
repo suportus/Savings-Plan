@@ -1,0 +1,46 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T21:16:39.137Z",
+  "summary": "REQ-1/2/3 appear implemented: Dashboard first summary card is replaced with a \"Monthly Target\" card in the existing 5-card grid, its value is computed via a shared monthly-target utility consistent with GoalCard, formatted to 2 decimals with global currency symbol logic, and styled with a left Repeat icon and `text-monthly-target` coloring. However, the diff also includes several unrelated UI/layout/animation changes not requested.",
+  "missing_requirements": [],
+  "hallucinated_features": [
+    {
+      "description": "Added/changed various GoalCard layout/compression and alignment behaviors (e.g., removed min-height constraint, reduced spacing, h-full stretching, mt-auto alignment) beyond what was required (only the first dashboard summary card was to be replaced).",
+      "reason": "BuildRequest explicitly constrained changes to replacing the first summary card and adding the aggregate calculation; it also states not to redesign other cards/layout beyond what is necessary.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "frontend/src/components/GoalCard.tsx"
+      ]
+    },
+    {
+      "description": "Added staggered entrance animations (fade-in/unblur with sequential delays) for goals/rows and additional grid/container alignment tweaks (e.g., `items-stretch`) that are not part of the requested Monthly Target summary card replacement.",
+      "reason": "Not mentioned in requirements; could be considered a redesign/behavior change beyond necessary scope.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Introduced or expanded CSS/theme changes (OKLCH color system, manual light mode overrides, removed `.card-min-height`, new/updated progress bar expired styling) not requested for this task.",
+      "reason": "Not required by REQ-1/2/3 and potentially affects broader UI beyond the first summary card replacement.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Modified GoalTable/CreateGoalForm/EditGoalDialog behavior and UI (sorting, quick add button, layout changes, optional deadline toggle support, etc.) beyond the requested dashboard summary card change.",
+      "reason": "These areas are outside the specified change (Dashboard first summary card + aggregate calculation).",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.63,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/components/Dashboard.tsx",
+    "frontend/src/components/GoalCard.tsx",
+    "frontend/src/utils/monthlyTarget.ts",
+    "project_state.json"
+  ]
+}

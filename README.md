@@ -1,2 +1,3 @@
-# Savings-Plan
-Exported from Caffeine project: Replace first dashboard summary card with Monthly Target aggregate
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
