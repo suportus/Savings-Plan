@@ -1,6 +1,6 @@
 {
   "name": "Savings Plan",
-  "short_name": "Savings Plan",
+  "short_name": "Savings",
   "description": "Your personal financial assistant for tracking virtual saving buckets",
   "display": "standalone",
   "start_url": "/",

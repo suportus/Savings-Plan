@@ -1,13 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useCreateSavingGoal, useGetCallerUserProfile } from '../hooks/useQueries';
-import { Currency } from '../backend';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { ArrowLeft } from 'lucide-react';
-import { updateLifetimeStatsOnGoalCreated } from './StatisticsModal';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Currency } from "../backend";
+import {
+  useCreateSavingGoal,
+  useGetCallerUserProfile,
+} from "../hooks/useQueries";
+import { updateLifetimeStatsOnGoalCreated } from "./StatisticsModal";
 
 interface CreateGoalFormProps {
   onClose: () => void;
@@ -15,23 +24,24 @@ interface CreateGoalFormProps {
 
 export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
   const { data: userProfile } = useGetCallerUserProfile();
-  const [name, setName] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [currentSavedAmount, setCurrentSavedAmount] = useState('');
-  const [deadline, setDeadline] = useState('');
+  const [name, setName] = useState("");
+  const [targetAmount, setTargetAmount] = useState("");
+  const [currentSavedAmount, setCurrentSavedAmount] = useState("");
+  const [deadline, setDeadline] = useState("");
   const [noTimeLimit, setNoTimeLimit] = useState(false);
 
   const { mutate: createGoal, isPending } = useCreateSavingGoal();
 
   // Get currency from user profile
-  const currency = userProfile?.defaultCurrency === Currency.eur ? 'eur' : 'usd';
-  const currencySymbol = currency === 'eur' ? '€' : '$';
+  const currency =
+    userProfile?.defaultCurrency === Currency.eur ? "eur" : "usd";
+  const currencySymbol = currency === "eur" ? "€" : "$";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     let deadlineNanoseconds: bigint | undefined = undefined;
-    
+
     if (!noTimeLimit && deadline) {
       const deadlineDate = new Date(deadline);
       deadlineNanoseconds = BigInt(deadlineDate.getTime()) * BigInt(1000000);
@@ -40,9 +50,9 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
     createGoal(
       {
         name,
-        currency: currency === 'eur' ? Currency.eur : Currency.usd,
-        targetAmount: parseFloat(targetAmount),
-        currentSavedAmount: parseFloat(currentSavedAmount),
+        currency: currency === "eur" ? Currency.eur : Currency.usd,
+        targetAmount: Number.parseFloat(targetAmount),
+        currentSavedAmount: Number.parseFloat(currentSavedAmount),
         deadline: deadlineNanoseconds,
       },
       {
@@ -51,19 +61,15 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
           updateLifetimeStatsOnGoalCreated();
           onClose();
         },
-      }
+      },
     );
   };
 
-  const minDate = new Date().toISOString().split('T')[0];
+  const minDate = new Date().toISOString().split("T")[0];
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Button
-        variant="ghost"
-        onClick={onClose}
-        className="mb-4"
-      >
+      <Button variant="ghost" onClick={onClose} className="mb-4">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Dashboard
       </Button>
@@ -95,7 +101,7 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
             {/* Row 2: Deadline (left) and No time limit toggle (right) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="deadline">Deadline {!noTimeLimit && '*'}</Label>
+                <Label htmlFor="deadline">Deadline {!noTimeLimit && "*"}</Label>
                 <Input
                   id="deadline"
                   type="date"
@@ -109,7 +115,9 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="noTimeLimit" className="block">No time limit</Label>
+                <Label htmlFor="noTimeLimit" className="block">
+                  No time limit
+                </Label>
                 <div className="flex items-center h-10">
                   <Switch
                     id="noTimeLimit"
@@ -124,7 +132,9 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
             {/* Row 3: Target Amount (left) and Current Saved Amount (right) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="targetAmount">Target Amount ({currencySymbol}) *</Label>
+                <Label htmlFor="targetAmount">
+                  Target Amount ({currencySymbol}) *
+                </Label>
                 <Input
                   id="targetAmount"
                   type="number"
@@ -140,7 +150,9 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="currentSavedAmount">Current Saved Amount ({currencySymbol}) *</Label>
+                <Label htmlFor="currentSavedAmount">
+                  Current Saved Amount ({currencySymbol}) *
+                </Label>
                 <Input
                   id="currentSavedAmount"
                   type="number"
@@ -177,7 +189,7 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
                     Creating...
                   </>
                 ) : (
-                  'Create Goal'
+                  "Create Goal"
                 )}
               </Button>
             </div>

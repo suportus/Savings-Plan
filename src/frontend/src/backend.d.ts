@@ -16,10 +16,61 @@ export interface SavingGoal {
     targetAmount: number;
     currency: Currency;
 }
+export type Result = {
+    __kind__: "ok";
+    ok: null;
+} | {
+    __kind__: "err";
+    err: Error_;
+};
 export interface EmergencyFund {
     bankAmount: number;
     cashAmount: number;
 }
+export type Error_ = {
+    __kind__: "FrontendOriginsNotConfigured";
+    FrontendOriginsNotConfigured: null;
+} | {
+    __kind__: "MixedSsoSources";
+    MixedSsoSources: {
+        otherKeys: Array<string>;
+        ssoKeys: Array<string>;
+    };
+} | {
+    __kind__: "Stale";
+    Stale: {
+        ageNs: bigint;
+    };
+} | {
+    __kind__: "MalformedCandid";
+    MalformedCandid: null;
+} | {
+    __kind__: "AmbiguousAttribute";
+    AmbiguousAttribute: {
+        field: string;
+        sources: Array<string>;
+    };
+} | {
+    __kind__: "NoAttributes";
+    NoAttributes: null;
+} | {
+    __kind__: "UnknownNonce";
+    UnknownNonce: null;
+} | {
+    __kind__: "UntrustedSsoSource";
+    UntrustedSsoSource: {
+        domain: string;
+    };
+} | {
+    __kind__: "MissingField";
+    MissingField: string;
+} | {
+    __kind__: "FrontendOriginMismatch";
+    FrontendOriginMismatch: {
+        got: string;
+        expected: Array<string>;
+    };
+};
 export type SavingGoalId = string;
 export interface UserProfile {
     name: string;

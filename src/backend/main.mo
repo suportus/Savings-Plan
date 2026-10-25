@@ -8,15 +8,17 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Float "mo:core/Float";
 
-import AccessControl "authorization/access-control";
-import MixinAuthorization "authorization/MixinAuthorization";
+import AccessControl "mo:caffeineai-authorization/access-control";
+import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
+import MixinViews "mo:caffeineai-data-viewer/MixinViews";
 
 
 // Apply migration using the with-clause
 
 actor {
   let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
+  include MixinAuthorization(accessControlState, null);
+  include MixinViews();
 
   public type ThemePreference = { #light; #dark };
   public type Currency = { #eur; #usd };

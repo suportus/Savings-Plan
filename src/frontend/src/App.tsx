@@ -1,22 +1,31 @@
-import { useState, useEffect } from 'react';
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useGetCallerUserProfile, useGetAllSavingGoals } from './hooks/useQueries';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import ProfileSetupModal from './components/ProfileSetupModal';
-import Dashboard from './components/Dashboard';
-import CreateGoalForm from './components/CreateGoalForm';
-import { Toaster } from '@/components/ui/sonner';
-import { ThemeProvider } from 'next-themes';
+import { Toaster } from "@/components/ui/sonner";
+import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import { ThemeProvider } from "next-themes";
+import { useEffect, useState } from "react";
+import CreateGoalForm from "./components/CreateGoalForm";
+import Dashboard from "./components/Dashboard";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
+import ProfileSetupModal from "./components/ProfileSetupModal";
+import {
+  useGetAllSavingGoals,
+  useGetCallerUserProfile,
+} from "./hooks/useQueries";
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
-  const { data: savingGoals = [], isLoading: goalsLoading } = useGetAllSavingGoals();
+  const {
+    data: userProfile,
+    isLoading: profileLoading,
+    isFetched,
+  } = useGetCallerUserProfile();
+  const { data: savingGoals = [], isLoading: goalsLoading } =
+    useGetAllSavingGoals();
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const isAuthenticated = !!identity;
-  const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
+  const showProfileSetup =
+    isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
   if (isInitializing) {
     return (
@@ -35,15 +44,15 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <div className="min-h-screen flex flex-col bg-background transition-colors duration-300">
         <Header />
-        
+
         <main className="flex-1 container mx-auto px-4 py-8">
           {!isAuthenticated ? (
             <div className="max-w-2xl mx-auto text-center py-16">
               <div className="mb-8">
                 <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center">
-                  <img 
-                    src="https://nar7q-4iaaa-aaaao-qksbq-cai.raw.icp0.io/Caffeine/pictures/Savingsplan.png" 
-                    alt="Savings Plan Logo" 
+                  <img
+                    src="https://nar7q-4iaaa-aaaao-qksbq-cai.raw.icp0.io/Caffeine/pictures/Savingsplan.png"
+                    alt="Savings Plan Logo"
                     className="w-full h-full object-contain"
                   />
                 </div>
@@ -51,14 +60,16 @@ export default function App() {
                   Welcome to Savings Plan
                 </h1>
                 <p className="text-xl text-muted-foreground mb-8">
-                  Track your financial goals with a decentralized savings tracker
+                  Track your financial goals with a decentralized savings
+                  tracker
                 </p>
               </div>
-              
+
               <div className="bg-card border border-border rounded-xl p-8 mb-8 shadow-sm transition-colors duration-300">
                 <h2 className="text-2xl font-semibold mb-4">Get Started</h2>
                 <p className="text-muted-foreground mb-6">
-                  Login to create and manage your personal saving goals securely on the blockchain
+                  Login to create and manage your personal saving goals securely
+                  on the blockchain
                 </p>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-start gap-3 text-left">
@@ -67,7 +78,10 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Create Saving Goals</h3>
-                      <p className="text-sm text-muted-foreground">Set target amounts and deadlines for your financial objectives</p>
+                      <p className="text-sm text-muted-foreground">
+                        Set target amounts and deadlines for your financial
+                        objectives
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 text-left">
@@ -76,7 +90,9 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Track Progress</h3>
-                      <p className="text-sm text-muted-foreground">Monitor your savings progress with visual indicators</p>
+                      <p className="text-sm text-muted-foreground">
+                        Monitor your savings progress with visual indicators
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 text-left">
@@ -85,7 +101,9 @@ export default function App() {
                     </div>
                     <div>
                       <h3 className="font-medium mb-1">Achieve Your Goals</h3>
-                      <p className="text-sm text-muted-foreground">Stay motivated and reach your financial milestones</p>
+                      <p className="text-sm text-muted-foreground">
+                        Stay motivated and reach your financial milestones
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -98,8 +116,8 @@ export default function App() {
               {showCreateForm ? (
                 <CreateGoalForm onClose={() => setShowCreateForm(false)} />
               ) : (
-                <Dashboard 
-                  goals={savingGoals} 
+                <Dashboard
+                  goals={savingGoals}
                   isLoading={goalsLoading}
                   onCreateNew={() => setShowCreateForm(true)}
                 />

@@ -1,62 +1,75 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useInternetIdentity } from './useInternetIdentity';
-import type { SavingGoal, SavingGoalDTO, UserProfile, EmergencyFund, ThemePreference, Currency } from '../backend';
-import { toast } from 'sonner';
-import { useTheme } from 'next-themes';
-import { useEffect } from 'react';
+import { createActor } from "@/backend";
+import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import type {
+  Currency,
+  EmergencyFund,
+  SavingGoal,
+  SavingGoalDTO,
+  ThemePreference,
+  UserProfile,
+} from "../backend";
 
 // Helper to extract user-friendly error messages from backend traps
 function parseBackendError(error: Error): string {
   const message = error.message;
   const lowerMessage = message.toLowerCase();
-  
+
   // Check for authorization errors (case-insensitive)
-  if (lowerMessage.includes('unauthorized')) {
+  if (lowerMessage.includes("unauthorized")) {
     // Extract the specific message after "Unauthorized: " or "unauthorized: "
     const match = message.match(/[Uu]nauthorized:\s*(.+?)(?:\n|$)/);
     if (match) {
       return match[1];
     }
-    return 'You do not have permission to perform this action';
+    return "You do not have permission to perform this action";
   }
-  
+
   // Check for not found errors (case-insensitive)
-  if (lowerMessage.includes('not found')) {
-    return 'The requested item was not found or you do not have access to it';
+  if (lowerMessage.includes("not found")) {
+    return "The requested item was not found or you do not have access to it";
   }
-  
+
   // Check for access denied patterns
-  if (lowerMessage.includes('access denied') || lowerMessage.includes('do not have access')) {
-    return 'You do not have access to this resource';
+  if (
+    lowerMessage.includes("access denied") ||
+    lowerMessage.includes("do not have access")
+  ) {
+    return "You do not have access to this resource";
   }
-  
+
   // Check for permission errors
-  if (lowerMessage.includes('permission') || lowerMessage.includes('forbidden')) {
-    return 'You do not have permission to perform this action';
+  if (
+    lowerMessage.includes("permission") ||
+    lowerMessage.includes("forbidden")
+  ) {
+    return "You do not have permission to perform this action";
   }
-  
+
   // Return the original message if no pattern matches
   return message;
 }
 
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const { setTheme } = useTheme();
-  
+
   // Scope query key by principal to prevent cross-user data leakage
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile', principalId],
+    queryKey: ["currentUserProfile", principalId],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       try {
         return await actor.getCallerUserProfile();
       } catch (error: any) {
         // If unauthorized, return null (user needs to set up profile)
-        if (error.message?.toLowerCase().includes('unauthorized')) {
+        if (error.message?.toLowerCase().includes("unauthorized")) {
           return null;
         }
         throw error;
@@ -69,7 +82,8 @@ export function useGetCallerUserProfile() {
   // Sync theme from backend profile
   useEffect(() => {
     if (query.data?.themePreference) {
-      const backendTheme = query.data.themePreference === 'dark' ? 'dark' : 'light';
+      const backendTheme =
+        query.data.themePreference === "dark" ? "dark" : "light";
       setTheme(backendTheme);
     }
   }, [query.data?.themePreference, setTheme]);
@@ -82,19 +96,21 @@ export function useGetCallerUserProfile() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile', principalId] });
-      toast.success('Profile saved successfully');
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserProfile", principalId],
+      });
+      toast.success("Profile saved successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -104,19 +120,19 @@ export function useSaveCallerUserProfile() {
 }
 
 export function useUpdateThemePreference() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (theme: ThemePreference) => {
-      if (!actor) throw new Error('Actor not available');
-      
+      if (!actor) throw new Error("Actor not available");
+
       // Get current profile
       const currentProfile = await actor.getCallerUserProfile();
-      if (!currentProfile) throw new Error('Profile not found');
-      
+      if (!currentProfile) throw new Error("Profile not found");
+
       // Update with new theme
       return actor.saveCallerUserProfile({
         ...currentProfile,
@@ -124,28 +140,30 @@ export function useUpdateThemePreference() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile', principalId] });
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserProfile", principalId],
+      });
     },
     onError: (error: Error) => {
-      console.error('Failed to update theme preference:', error);
+      console.error("Failed to update theme preference:", error);
     },
   });
 }
 
 export function useUpdateUserCurrency() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (currency: Currency) => {
-      if (!actor) throw new Error('Actor not available');
-      
+      if (!actor) throw new Error("Actor not available");
+
       // Get current profile
       const currentProfile = await actor.getCallerUserProfile();
-      if (!currentProfile) throw new Error('Profile not found');
-      
+      if (!currentProfile) throw new Error("Profile not found");
+
       // Update with new currency
       return actor.saveCallerUserProfile({
         ...currentProfile,
@@ -154,10 +172,14 @@ export function useUpdateUserCurrency() {
     },
     onSuccess: () => {
       // Invalidate all queries that might display currency
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['savingGoals', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['emergencyFund', principalId] });
-      toast.success('Currency updated successfully');
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserProfile", principalId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["savingGoals", principalId] });
+      queryClient.invalidateQueries({
+        queryKey: ["emergencyFund", principalId],
+      });
+      toast.success("Currency updated successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -167,19 +189,19 @@ export function useUpdateUserCurrency() {
 }
 
 export function useUpdateUserName() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (name: string) => {
-      if (!actor) throw new Error('Actor not available');
-      
+      if (!actor) throw new Error("Actor not available");
+
       // Get current profile
       const currentProfile = await actor.getCallerUserProfile();
-      if (!currentProfile) throw new Error('Profile not found');
-      
+      if (!currentProfile) throw new Error("Profile not found");
+
       // Update with new name
       return actor.saveCallerUserProfile({
         ...currentProfile,
@@ -187,8 +209,10 @@ export function useUpdateUserName() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile', principalId] });
-      toast.success('Name updated successfully');
+      queryClient.invalidateQueries({
+        queryKey: ["currentUserProfile", principalId],
+      });
+      toast.success("Name updated successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -198,12 +222,12 @@ export function useUpdateUserName() {
 }
 
 export function useGetAllSavingGoals() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActor(createActor);
   const { identity } = useInternetIdentity();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useQuery<SavingGoal[]>({
-    queryKey: ['savingGoals', principalId],
+    queryKey: ["savingGoals", principalId],
     queryFn: async () => {
       if (!actor) return [];
       try {
@@ -219,20 +243,20 @@ export function useGetAllSavingGoals() {
 }
 
 export function useCreateSavingGoal() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (data: SavingGoalDTO) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.createSavingGoal(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingGoals', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['statistics', principalId] });
-      toast.success('Saving goal created successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingGoals", principalId] });
+      queryClient.invalidateQueries({ queryKey: ["statistics", principalId] });
+      toast.success("Saving goal created successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -242,20 +266,20 @@ export function useCreateSavingGoal() {
 }
 
 export function useUpdateSavingGoal() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: SavingGoalDTO }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateSavingGoal(id, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingGoals', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['statistics', principalId] });
-      toast.success('Saving goal updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingGoals", principalId] });
+      queryClient.invalidateQueries({ queryKey: ["statistics", principalId] });
+      toast.success("Saving goal updated successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -265,20 +289,20 @@ export function useUpdateSavingGoal() {
 }
 
 export function useDeleteSavingGoal() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.deleteSavingGoal(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingGoals', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['statistics', principalId] });
-      toast.success('Saving goal deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingGoals", principalId] });
+      queryClient.invalidateQueries({ queryKey: ["statistics", principalId] });
+      toast.success("Saving goal deleted successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -288,20 +312,20 @@ export function useDeleteSavingGoal() {
 }
 
 export function useAddToCurrentSavedAmount() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.addToCurrentSavedAmount(id, amount);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingGoals', principalId] });
-      queryClient.invalidateQueries({ queryKey: ['statistics', principalId] });
-      toast.success('Amount added successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingGoals", principalId] });
+      queryClient.invalidateQueries({ queryKey: ["statistics", principalId] });
+      toast.success("Amount added successfully");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -313,12 +337,12 @@ export function useAddToCurrentSavedAmount() {
 // Emergency Fund Hooks
 
 export function useGetEmergencyFund() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActor(createActor);
   const { identity } = useInternetIdentity();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useQuery<EmergencyFund>({
-    queryKey: ['emergencyFund', principalId],
+    queryKey: ["emergencyFund", principalId],
     queryFn: async () => {
       if (!actor) return { bankAmount: 0, cashAmount: 0 };
       try {
@@ -334,19 +358,21 @@ export function useGetEmergencyFund() {
 }
 
 export function useUpdateEmergencyFund() {
-  const { actor } = useActor();
+  const { actor } = useActor(createActor);
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useMutation({
     mutationFn: async ({ bank, cash }: { bank: number; cash: number }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateEmergencyFund(bank, cash);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['emergencyFund', principalId] });
-      toast.success('Emergency fund updated');
+      queryClient.invalidateQueries({
+        queryKey: ["emergencyFund", principalId],
+      });
+      toast.success("Emergency fund updated");
     },
     onError: (error: Error) => {
       const friendlyMessage = parseBackendError(error);
@@ -358,9 +384,9 @@ export function useUpdateEmergencyFund() {
 // Statistics Hooks
 
 export function useGetStatistics() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useActor(createActor);
   const { identity } = useInternetIdentity();
-  const principalId = identity?.getPrincipal().toString() || 'anonymous';
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
 
   return useQuery<{
     totalGoalsCreated: bigint;
@@ -368,17 +394,17 @@ export function useGetStatistics() {
     totalSavedAmount: number;
     biggestAchievement: number;
   } | null>({
-    queryKey: ['statistics', principalId],
+    queryKey: ["statistics", principalId],
     queryFn: async () => {
       if (!actor) return null;
       try {
         return await actor.getStatistics();
       } catch (error: any) {
         // Statistics may not exist yet, return null silently
-        if (error.message?.toLowerCase().includes('unauthorized')) {
+        if (error.message?.toLowerCase().includes("unauthorized")) {
           return null;
         }
-        console.error('Failed to load statistics:', error);
+        console.error("Failed to load statistics:", error);
         return null;
       }
     },

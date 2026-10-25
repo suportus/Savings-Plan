@@ -13,6 +13,23 @@ import type { Principal } from '@icp-sdk/core/principal';
 export type Currency = { 'eur' : null } |
   { 'usd' : null };
 export interface EmergencyFund { 'bankAmount' : number, 'cashAmount' : number }
+export type Error = { 'FrontendOriginsNotConfigured' : null } |
+  {
+    'MixedSsoSources' : {
+      'otherKeys' : Array<string>,
+      'ssoKeys' : Array<string>,
+    }
+  } |
+  { 'Stale' : { 'ageNs' : bigint } } |
+  { 'MalformedCandid' : null } |
+  { 'AmbiguousAttribute' : { 'field' : string, 'sources' : Array<string> } } |
+  { 'NoAttributes' : null } |
+  { 'UnknownNonce' : null } |
+  { 'UntrustedSsoSource' : { 'domain' : string } } |
+  { 'MissingField' : string } |
+  { 'FrontendOriginMismatch' : { 'got' : string, 'expected' : Array<string> } };
+export type Result = { 'ok' : null } |
+  { 'err' : Error };
 export interface SavingGoal {
   'id' : SavingGoalId,
   'name' : string,
@@ -41,7 +58,22 @@ export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
 export interface _SERVICE {
-  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  '__accessControlState' : ActorMethod<[], any>,
+  '__emergencyFunds' : ActorMethod<
+    [[] | [Principal], [] | [bigint]],
+    Array<[Principal, EmergencyFund]>
+  >,
+  '__emptyEmergencyFund' : ActorMethod<[], EmergencyFund>,
+  '__nextId' : ActorMethod<[], bigint>,
+  '__savingGoals' : ActorMethod<[], any>,
+  '__userProfiles' : ActorMethod<
+    [[] | [Principal], [] | [bigint]],
+    Array<[Principal, UserProfile]>
+  >,
+  '__userStatistics' : ActorMethod<[], any>,
+  '_initialize_access_control' : ActorMethod<[], undefined>,
+  '_internet_identity_sign_in_finish' : ActorMethod<[], Result>,
+  '_internet_identity_sign_in_start' : ActorMethod<[], Uint8Array>,
   'addToCurrentSavedAmount' : ActorMethod<[SavingGoalId, number], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createSavingGoal' : ActorMethod<[SavingGoalDTO], SavingGoalId>,

@@ -1,0 +1,77 @@
+// Version: 1.0.0
+type Currency__271884090 = {#eur; #usd};
+type Data__80296667<K, V> =
+  {var count : Nat__1040412405; kvs : [var ?(K, V)]};
+type EmergencyFund__934014247 = {bankAmount : Float; cashAmount : Float};
+type Int__616954475 = Int;
+type Int__837511138 = Int__616954475;
+type Internal__41346355<K, V> =
+  {children : [var ?Node__1000929467<K, V>]; data : Data__80296667<K, V>};
+type Leaf__712614010<K, V> = {data : Data__80296667<K, V>};
+type Map__222667396<K, V> = Map__912772452<K, V>;
+type Map__709709801<K, V> =
+  {var root : Node__1000929467<K, V>; var size : Nat__1040412405};
+type Map__912772452<K, V> = Map__709709801<K, V>;
+type Nat__1040412405 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__1000929467<K, V> =
+  {#internal : Internal__41346355<K, V>; #leaf : Leaf__712614010<K, V>};
+type SavingGoalId__963421984 = Text;
+type SavingGoal__458753947 =
+  {
+    currency : Currency__271884090;
+    currentSavedAmount : Float;
+    deadline : ?Time__688418391;
+    id : SavingGoalId__963421984;
+    name : Text;
+    targetAmount : Float
+  };
+type Statistics__888504121 =
+  {
+    var biggestAchievement : Float;
+    var completedGoals : Nat;
+    var totalGoalsCreated : Nat;
+    var totalSavedAmount : Float
+  };
+type ThemePreference__140704481 = {#dark; #light};
+type Time__298180599 = Int__837511138;
+type Time__688418391 = Time__298180599;
+type UserProfile__491224006 =
+  {
+    defaultCurrency : Currency__271884090;
+    name : Text;
+    themePreference : ThemePreference__140704481
+  };
+type UserRole__686137147 = {#admin; #guest; #user};
+actor {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__222667396<Principal, UserRole__686137147>
+    };
+  stable emergencyFunds :
+    {
+      var root : Node__1000929467<Principal, EmergencyFund__934014247>;
+      var size : Nat__1040412405
+    };
+  stable emptyEmergencyFund : {bankAmount : Float; cashAmount : Float};
+  stable var nextId : Nat;
+  stable savingGoals :
+    {
+      var root :
+        Node__1000929467<Principal,
+                          Map__222667396<SavingGoalId__963421984,
+                                          SavingGoal__458753947>>;
+      var size : Nat__1040412405
+    };
+  stable userProfiles :
+    {
+      var root : Node__1000929467<Principal, UserProfile__491224006>;
+      var size : Nat__1040412405
+    };
+  stable userStatistics :
+    {
+      var root : Node__1000929467<Principal, Statistics__888504121>;
+      var size : Nat__1040412405
+    }
+};

@@ -1,12 +1,3 @@
-import { useState, useEffect, useRef } from 'react';
-import type { SavingGoal } from '../backend';
-import { Currency } from '../backend';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Edit, Trash2, Calendar, Plus } from 'lucide-react';
-import { useDeleteSavingGoal, useAddToCurrentSavedAmount, useGetCallerUserProfile } from '../hooks/useQueries';
-import EditGoalDialog from './EditGoalDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +7,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +17,23 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { formatDateByCurrency } from '../lib/dateUtils';
-import { updateLifetimeStatsOnGoalCompleted } from './StatisticsModal';
-import { calculateMonthlyTarget } from '../utils/monthlyTarget';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Calendar, Edit, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type { SavingGoal } from "../backend";
+import { Currency } from "../backend";
+import {
+  useAddToCurrentSavedAmount,
+  useDeleteSavingGoal,
+  useGetCallerUserProfile,
+} from "../hooks/useQueries";
+import { formatDateByCurrency } from "../lib/dateUtils";
+import { calculateMonthlyTarget } from "../utils/monthlyTarget";
+import EditGoalDialog from "./EditGoalDialog";
+import { updateLifetimeStatsOnGoalCompleted } from "./StatisticsModal";
 
 interface GoalCardProps {
   goal: SavingGoal;
@@ -46,34 +50,38 @@ export default function GoalCard({ goal }: GoalCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showQuickAddDialog, setShowQuickAddDialog] = useState(false);
-  const [quickAddAmount, setQuickAddAmount] = useState('');
+  const [quickAddAmount, setQuickAddAmount] = useState("");
   const [confettiLoaded, setConfettiLoaded] = useState(false);
-  
+
   const { data: userProfile } = useGetCallerUserProfile();
-  
+
   // Track previous progress to detect threshold crossing
   const previousProgressRef = useRef<number | null>(null);
   // Track if we're in the middle of a user-triggered update
   const isUserActionRef = useRef(false);
-  
+
   const { mutate: deleteGoal, isPending: isDeleting } = useDeleteSavingGoal();
-  const { mutate: addAmount, isPending: isAdding } = useAddToCurrentSavedAmount();
+  const { mutate: addAmount, isPending: isAdding } =
+    useAddToCurrentSavedAmount();
 
   const progress = (goal.currentSavedAmount / goal.targetAmount) * 100;
   const isComplete = progress >= 100;
-  
+
   // Use global currency from user profile
   const globalCurrency = userProfile?.defaultCurrency || Currency.usd;
-  const currencySymbol = globalCurrency === Currency.eur ? '€' : '$';
-  
+  const currencySymbol = globalCurrency === Currency.eur ? "€" : "$";
+
   const hasDeadline = !!goal.deadline;
-  
+
   // Calculate deadline-related values only if deadline exists
   let deadline: Date | null = null;
-  let formattedDeadline = '';
+  let formattedDeadline = "";
   let isExpired = false;
   let daysRemaining = 0;
-  let remainingAmount = Math.max(0, goal.targetAmount - goal.currentSavedAmount);
+  let remainingAmount = Math.max(
+    0,
+    goal.targetAmount - goal.currentSavedAmount,
+  );
   let isUrgent = false;
 
   // Use shared utility for monthly target calculation
@@ -86,17 +94,21 @@ export default function GoalCard({ goal }: GoalCardProps) {
     // Red Progress Bar Logic: currentDate >= deadlineDate and progress < 100%
     // Green Progress Bar Logic: progress >= 100% regardless of deadline
     isExpired = deadline <= now && !isComplete;
-    daysRemaining = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
+    daysRemaining = Math.ceil(
+      (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
     // Check urgency: deadline < 30 days and progress < 90% (only if not expired)
-    isUrgent = daysRemaining < 30 && daysRemaining > 0 && progress < 90 && !isExpired;
+    isUrgent =
+      daysRemaining < 30 && daysRemaining > 0 && progress < 90 && !isExpired;
   }
 
   // Load canvas-confetti library
   useEffect(() => {
-    if (typeof window !== 'undefined' && !window.confetti) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js';
+    if (typeof window !== "undefined" && !window.confetti) {
+      const script = document.createElement("script");
+      script.src =
+        "https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js";
       script.async = true;
       script.onload = () => setConfettiLoaded(true);
       document.head.appendChild(script);
@@ -114,12 +126,18 @@ export default function GoalCard({ goal }: GoalCardProps) {
     }
 
     // Check if progress crossed 100% threshold during a user action
-    const crossedThreshold = previousProgressRef.current < 100 && progress >= 100;
-    
-    if (crossedThreshold && isUserActionRef.current && confettiLoaded && window.confetti) {
+    const crossedThreshold =
+      previousProgressRef.current < 100 && progress >= 100;
+
+    if (
+      crossedThreshold &&
+      isUserActionRef.current &&
+      confettiLoaded &&
+      window.confetti
+    ) {
       // Update lifetime statistics
       updateLifetimeStatsOnGoalCompleted(goal.targetAmount);
-      
+
       // Trigger confetti celebration
       const duration = 3000;
       const animationEnd = Date.now() + duration;
@@ -129,7 +147,7 @@ export default function GoalCard({ goal }: GoalCardProps) {
         return Math.random() * (max - min) + min;
       }
 
-      const interval: any = setInterval(function() {
+      const interval: any = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -137,19 +155,19 @@ export default function GoalCard({ goal }: GoalCardProps) {
         }
 
         const particleCount = 50 * (timeLeft / duration);
-        
+
         window.confetti({
           ...defaults,
           particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
         });
         window.confetti({
           ...defaults,
           particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
         });
       }, 250);
-      
+
       // Reset user action flag after triggering
       isUserActionRef.current = false;
     }
@@ -164,26 +182,26 @@ export default function GoalCard({ goal }: GoalCardProps) {
   };
 
   const handleQuickAdd = () => {
-    const amount = parseFloat(quickAddAmount);
-    if (isNaN(amount) || amount <= 0) {
+    const amount = Number.parseFloat(quickAddAmount);
+    if (Number.isNaN(amount) || amount <= 0) {
       return;
     }
-    
+
     // Mark that a user action is happening
     isUserActionRef.current = true;
-    
+
     addAmount(
       { id: goal.id, amount },
       {
         onSuccess: () => {
           setShowQuickAddDialog(false);
-          setQuickAddAmount('');
+          setQuickAddAmount("");
         },
         onError: () => {
           // Reset flag if action fails
           isUserActionRef.current = false;
         },
-      }
+      },
     );
   };
 
@@ -228,11 +246,13 @@ export default function GoalCard({ goal }: GoalCardProps) {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Progress</span>
-              <span className="font-semibold text-emerald-500">{progress.toFixed(1)}%</span>
+              <span className="font-semibold text-emerald-500">
+                {progress.toFixed(1)}%
+              </span>
             </div>
-            <Progress 
-              value={progress} 
-              className={'progress-bar ' + (isExpired ? 'expired' : '')}
+            <Progress
+              value={progress}
+              className={`progress-bar ${isExpired ? "expired" : ""}`}
             />
           </div>
 
@@ -241,7 +261,8 @@ export default function GoalCard({ goal }: GoalCardProps) {
             <div className="flex flex-col items-center justify-center py-2">
               <p className="text-xs text-muted-foreground mb-1">Target</p>
               <p className="text-3xl font-bold text-target-amount">
-                {currencySymbol}{goal.targetAmount.toLocaleString()}
+                {currencySymbol}
+                {goal.targetAmount.toLocaleString()}
               </p>
             </div>
           ) : (
@@ -249,19 +270,22 @@ export default function GoalCard({ goal }: GoalCardProps) {
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">Saved</p>
                 <p className="text-base font-bold text-saved-amount">
-                  {currencySymbol}{goal.currentSavedAmount.toLocaleString()}
+                  {currencySymbol}
+                  {goal.currentSavedAmount.toLocaleString()}
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">To Go</p>
                 <p className="text-base font-bold text-to-go-amount">
-                  {currencySymbol}{remainingAmount.toLocaleString()}
+                  {currencySymbol}
+                  {remainingAmount.toLocaleString()}
                 </p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">Target</p>
                 <p className="text-base font-bold text-target-amount">
-                  {currencySymbol}{goal.targetAmount.toLocaleString()}
+                  {currencySymbol}
+                  {goal.targetAmount.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -273,7 +297,8 @@ export default function GoalCard({ goal }: GoalCardProps) {
               <div className="flex items-center justify-between text-sm w-full">
                 <span className="text-muted-foreground">Monthly Target</span>
                 <span className="font-semibold text-monthly-target">
-                  {currencySymbol}{monthlyTarget.toFixed(2)}/month
+                  {currencySymbol}
+                  {monthlyTarget.toFixed(2)}/month
                 </span>
               </div>
             </div>
@@ -311,11 +336,13 @@ export default function GoalCard({ goal }: GoalCardProps) {
                     DEADLINE EXCEEDED! ⚠️
                   </span>
                 ) : (
-                  <span className={
-                    isUrgent 
-                      ? 'text-orange-500 font-semibold' 
-                      : 'text-muted-foreground'
-                  }>
+                  <span
+                    className={
+                      isUrgent
+                        ? "text-orange-500 font-semibold"
+                        : "text-muted-foreground"
+                    }
+                  >
                     {daysRemaining} days left
                   </span>
                 )}
@@ -329,7 +356,9 @@ export default function GoalCard({ goal }: GoalCardProps) {
           {/* No deadline indicator - only show when not complete - pushed to bottom */}
           {!hasDeadline && !isComplete && (
             <div className="flex items-center justify-center pt-2 border-t border-border mt-auto">
-              <span className="text-sm text-muted-foreground italic">No time limit</span>
+              <span className="text-sm text-muted-foreground italic">
+                No time limit
+              </span>
             </div>
           )}
 
@@ -353,7 +382,8 @@ export default function GoalCard({ goal }: GoalCardProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Saving Goal?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{goal.name}"? This action cannot be undone.
+              Are you sure you want to delete "{goal.name}"? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -363,7 +393,7 @@ export default function GoalCard({ goal }: GoalCardProps) {
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -374,7 +404,8 @@ export default function GoalCard({ goal }: GoalCardProps) {
           <DialogHeader>
             <DialogTitle>Quick Add to {goal.name}</DialogTitle>
             <DialogDescription>
-              Add an amount to your current savings. Remaining: {currencySymbol}{remainingAmount.toFixed(2)}
+              Add an amount to your current savings. Remaining: {currencySymbol}
+              {remainingAmount.toFixed(2)}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -395,7 +426,7 @@ export default function GoalCard({ goal }: GoalCardProps) {
                   className="pl-8"
                   placeholder="0.00"
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       handleQuickAdd();
                     }
                   }}
@@ -408,17 +439,21 @@ export default function GoalCard({ goal }: GoalCardProps) {
               variant="outline"
               onClick={() => {
                 setShowQuickAddDialog(false);
-                setQuickAddAmount('');
+                setQuickAddAmount("");
               }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleQuickAdd}
-              disabled={isAdding || !quickAddAmount || parseFloat(quickAddAmount) <= 0}
+              disabled={
+                isAdding ||
+                !quickAddAmount ||
+                Number.parseFloat(quickAddAmount) <= 0
+              }
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              {isAdding ? 'Adding...' : 'Add Amount'}
+              {isAdding ? "Adding..." : "Add Amount"}
             </Button>
           </DialogFooter>
         </DialogContent>

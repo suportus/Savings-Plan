@@ -1,15 +1,21 @@
-import { useState } from 'react';
-import { useSaveCallerUserProfile } from '../hooks/useQueries';
-import { Currency, ThemePreference } from '../backend';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
+import { Currency, ThemePreference } from "../backend";
+import { useSaveCallerUserProfile } from "../hooks/useQueries";
 
 export default function ProfileSetupModal() {
-  const [name, setName] = useState('');
-  const [currency, setCurrency] = useState<'eur' | 'usd'>('usd');
+  const [name, setName] = useState("");
+  const [currency, setCurrency] = useState<"eur" | "usd">("usd");
   const { mutate: saveProfile, isPending } = useSaveCallerUserProfile();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,7 +23,7 @@ export default function ProfileSetupModal() {
     if (name.trim()) {
       saveProfile({
         name: name.trim(),
-        defaultCurrency: currency === 'eur' ? Currency.eur : Currency.usd,
+        defaultCurrency: currency === "eur" ? Currency.eur : Currency.usd,
         themePreference: ThemePreference.dark, // Default to dark mode
       });
     }
@@ -28,8 +34,20 @@ export default function ProfileSetupModal() {
       <Card className="w-full max-w-md border-emerald-500/20 shadow-2xl">
         <CardHeader className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg
+              className="w-8 h-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-label="User profile icon"
+              role="img"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
           </div>
           <CardTitle className="text-2xl">Welcome!</CardTitle>
@@ -57,27 +75,37 @@ export default function ProfileSetupModal() {
               <Label htmlFor="currency-toggle">Default Currency</Label>
               <div className="flex items-center justify-between p-4 rounded-lg border border-emerald-500/20 bg-card/50">
                 <div className="flex items-center gap-3">
-                  <span className={`text-2xl transition-opacity ${currency === 'usd' ? 'opacity-100' : 'opacity-40'}`}>
+                  <span
+                    className={`text-2xl transition-opacity ${currency === "usd" ? "opacity-100" : "opacity-40"}`}
+                  >
                     $
                   </span>
-                  <span className={`font-medium transition-opacity ${currency === 'usd' ? 'opacity-100' : 'opacity-40'}`}>
+                  <span
+                    className={`font-medium transition-opacity ${currency === "usd" ? "opacity-100" : "opacity-40"}`}
+                  >
                     USD
                   </span>
                 </div>
-                
+
                 <Switch
                   id="currency-toggle"
-                  checked={currency === 'eur'}
-                  onCheckedChange={(checked) => setCurrency(checked ? 'eur' : 'usd')}
+                  checked={currency === "eur"}
+                  onCheckedChange={(checked) =>
+                    setCurrency(checked ? "eur" : "usd")
+                  }
                   disabled={isPending}
                   className="data-[state=checked]:bg-emerald-600"
                 />
-                
+
                 <div className="flex items-center gap-3">
-                  <span className={`font-medium transition-opacity ${currency === 'eur' ? 'opacity-100' : 'opacity-40'}`}>
+                  <span
+                    className={`font-medium transition-opacity ${currency === "eur" ? "opacity-100" : "opacity-40"}`}
+                  >
                     EUR
                   </span>
-                  <span className={`text-2xl transition-opacity ${currency === 'eur' ? 'opacity-100' : 'opacity-40'}`}>
+                  <span
+                    className={`text-2xl transition-opacity ${currency === "eur" ? "opacity-100" : "opacity-40"}`}
+                  >
                     €
                   </span>
                 </div>
@@ -98,7 +126,7 @@ export default function ProfileSetupModal() {
                   Saving...
                 </>
               ) : (
-                'Continue'
+                "Continue"
               )}
             </Button>
           </form>

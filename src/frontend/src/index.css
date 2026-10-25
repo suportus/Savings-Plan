@@ -3,403 +3,403 @@
 @tailwind utilities;
 
 @layer base {
-    :root {
-        --radius: 0.625rem;
-        
-        /* Light Mode Colors - Premium Design with Manual Overrides */
-        --background: 0.965 0.005 240;
-        --foreground: 0.205 0.02 264;
-        --card: 1 0 0;
-        --card-foreground: 0.205 0.02 264;
-        --popover: 1 0 0;
-        --popover-foreground: 0.205 0.02 264;
-        --primary: 0.922 0 0;
-        --primary-foreground: 0.205 0 0;
-        --secondary: 0.961 0.005 264;
-        --secondary-foreground: 0.205 0.02 264;
-        --muted: 0.961 0.005 264;
-        --muted-foreground: 0.545 0.015 264;
-        --accent: 0.941 0.008 264;
-        --accent-foreground: 0.205 0.02 264;
-        --destructive: 0.704 0.191 22.216;
-        --destructive-foreground: 0.985 0 0;
-        --border: 0.902 0.008 240;
-        --input: 0.902 0.008 264;
-        --ring: 0.556 0 0;
-        --chart-1: 0.488 0.243 264.376;
-        --chart-2: 0.696 0.17 162.48;
-        --chart-3: 0.769 0.188 70.08;
-        --chart-4: 0.627 0.265 303.9;
-        --chart-5: 0.645 0.246 16.439;
-        --sidebar: 1 0 0;
-        --sidebar-foreground: 0.205 0.02 264;
-        --sidebar-primary: 0.488 0.243 264.376;
-        --sidebar-primary-foreground: 0.985 0 0;
-        --sidebar-accent: 0.961 0.005 264;
-        --sidebar-accent-foreground: 0.205 0.02 264;
-        --sidebar-border: 0.922 0.005 264;
-        --sidebar-ring: 0.439 0 0;
-    }
+  :root {
+    --radius: 0.625rem;
 
-    .dark {
-        --background: 0.145 0 0;
-        --foreground: 0.985 0 0;
-        --card: 0.205 0 0;
-        --card-foreground: 0.985 0 0;
-        --popover: 0.269 0 0;
-        --popover-foreground: 0.985 0 0;
-        --primary: 0.922 0 0;
-        --primary-foreground: 0.205 0 0;
-        --secondary: 0.269 0 0;
-        --secondary-foreground: 0.985 0 0;
-        --muted: 0.269 0 0;
-        --muted-foreground: 0.708 0 0;
-        --accent: 0.371 0 0;
-        --accent-foreground: 0.985 0 0;
-        --destructive: 0.704 0.191 22.216;
-        --destructive-foreground: 0.985 0 0;
-        --border: 1 0 0 / 10%;
-        --input: 1 0 0 / 15%;
-        --ring: 0.556 0 0;
-        --chart-1: 0.488 0.243 264.376;
-        --chart-2: 0.696 0.17 162.48;
-        --chart-3: 0.769 0.188 70.08;
-        --chart-4: 0.627 0.265 303.9;
-        --chart-5: 0.645 0.246 16.439;
-        --sidebar: 0.205 0 0;
-        --sidebar-foreground: 0.985 0 0;
-        --sidebar-primary: 0.488 0.243 264.376;
-        --sidebar-primary-foreground: 0.985 0 0;
-        --sidebar-accent: 0.269 0 0;
-        --sidebar-accent-foreground: 0.985 0 0;
-        --sidebar-border: 1 0 0 / 10%;
-        --sidebar-ring: 0.439 0 0;
-    }
+    /* Light Mode Colors - Premium Design with Manual Overrides */
+    --background: 0.965 0.005 240;
+    --foreground: 0.205 0.02 264;
+    --card: 1 0 0;
+    --card-foreground: 0.205 0.02 264;
+    --popover: 1 0 0;
+    --popover-foreground: 0.205 0.02 264;
+    --primary: 0.922 0 0;
+    --primary-foreground: 0.205 0 0;
+    --secondary: 0.961 0.005 264;
+    --secondary-foreground: 0.205 0.02 264;
+    --muted: 0.961 0.005 264;
+    --muted-foreground: 0.545 0.015 264;
+    --accent: 0.941 0.008 264;
+    --accent-foreground: 0.205 0.02 264;
+    --destructive: 0.704 0.191 22.216;
+    --destructive-foreground: 0.985 0 0;
+    --border: 0.902 0.008 240;
+    --input: 0.902 0.008 264;
+    --ring: 0.556 0 0;
+    --chart-1: 0.488 0.243 264.376;
+    --chart-2: 0.696 0.17 162.48;
+    --chart-3: 0.769 0.188 70.08;
+    --chart-4: 0.627 0.265 303.9;
+    --chart-5: 0.645 0.246 16.439;
+    --sidebar: 1 0 0;
+    --sidebar-foreground: 0.205 0.02 264;
+    --sidebar-primary: 0.488 0.243 264.376;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.961 0.005 264;
+    --sidebar-accent-foreground: 0.205 0.02 264;
+    --sidebar-border: 0.922 0.005 264;
+    --sidebar-ring: 0.439 0 0;
+  }
 
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-        transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    
-    /* Manual Light Mode Override: Global Background */
-    :root body {
-        background-color: #F1F5F9;
-    }
+  .dark {
+    --background: 0.145 0 0;
+    --foreground: 0.985 0 0;
+    --card: 0.205 0 0;
+    --card-foreground: 0.985 0 0;
+    --popover: 0.269 0 0;
+    --popover-foreground: 0.985 0 0;
+    --primary: 0.922 0 0;
+    --primary-foreground: 0.205 0 0;
+    --secondary: 0.269 0 0;
+    --secondary-foreground: 0.985 0 0;
+    --muted: 0.269 0 0;
+    --muted-foreground: 0.708 0 0;
+    --accent: 0.371 0 0;
+    --accent-foreground: 0.985 0 0;
+    --destructive: 0.704 0.191 22.216;
+    --destructive-foreground: 0.985 0 0;
+    --border: 1 0 0 / 10%;
+    --input: 1 0 0 / 15%;
+    --ring: 0.556 0 0;
+    --chart-1: 0.488 0.243 264.376;
+    --chart-2: 0.696 0.17 162.48;
+    --chart-3: 0.769 0.188 70.08;
+    --chart-4: 0.627 0.265 303.9;
+    --chart-5: 0.645 0.246 16.439;
+    --sidebar: 0.205 0 0;
+    --sidebar-foreground: 0.985 0 0;
+    --sidebar-primary: 0.488 0.243 264.376;
+    --sidebar-primary-foreground: 0.985 0 0;
+    --sidebar-accent: 0.269 0 0;
+    --sidebar-accent-foreground: 0.985 0 0;
+    --sidebar-border: 1 0 0 / 10%;
+    --sidebar-ring: 0.439 0 0;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Manual Light Mode Override: Global Background */
+  :root body {
+    background-color: #f1f5f9;
+  }
 }
 
 /* Custom emerald accent colors for the Savings Plan theme */
 @layer utilities {
-    /* Dark mode emerald colors */
-    .text-emerald-400 {
-        color: oklch(0.8 0.15 160);
+  /* Dark mode emerald colors */
+  .text-emerald-400 {
+    color: oklch(0.8 0.15 160);
+  }
+  .text-emerald-500 {
+    color: oklch(0.7 0.17 160);
+  }
+  .text-emerald-600 {
+    color: oklch(0.6 0.16 160);
+  }
+  .bg-emerald-400 {
+    background-color: oklch(0.8 0.15 160);
+  }
+  .bg-emerald-500 {
+    background-color: oklch(0.7 0.17 160);
+  }
+  .bg-emerald-600 {
+    background-color: oklch(0.6 0.16 160);
+  }
+  .bg-emerald-700 {
+    background-color: oklch(0.5 0.15 160);
+  }
+  .border-emerald-500 {
+    border-color: oklch(0.7 0.17 160);
+  }
+  .fill-emerald-500 {
+    fill: oklch(0.7 0.17 160);
+  }
+  .hover\:bg-emerald-700:hover {
+    background-color: oklch(0.5 0.15 160);
+  }
+  .hover\:text-emerald-400:hover {
+    color: oklch(0.8 0.15 160);
+  }
+  .hover\:border-emerald-500\/50:hover {
+    border-color: oklch(0.7 0.17 160 / 0.5);
+  }
+  .group:hover .group-hover\:text-emerald-500 {
+    color: oklch(0.7 0.17 160);
+  }
+  .bg-emerald-500\/10 {
+    background-color: oklch(0.7 0.17 160 / 0.1);
+  }
+  .border-emerald-500\/20 {
+    border-color: oklch(0.7 0.17 160 / 0.2);
+  }
+  .focus\:border-emerald-500:focus {
+    border-color: oklch(0.7 0.17 160);
+  }
+
+  /* Manual Light Mode Overrides: Text Colors */
+  :root .text-main-title {
+    color: #1e293b;
+  }
+
+  :root .text-saved-amount {
+    color: oklch(0.55 0.16 160);
+  }
+
+  :root .text-to-go-amount {
+    color: #d97706;
+  }
+
+  :root .text-target-amount {
+    color: #475569;
+  }
+
+  :root .text-monthly-target {
+    color: #1d4ed8;
+  }
+
+  /* Manual Light Mode Overrides: Icon Backgrounds with Soft Tints */
+  :root .icon-bg-emerald {
+    background-color: rgba(16, 185, 129, 0.12);
+  }
+  :root .icon-bg-blue {
+    background-color: rgba(59, 130, 246, 0.12);
+  }
+  :root .icon-bg-purple {
+    background-color: rgba(168, 85, 247, 0.12);
+  }
+  :root .icon-bg-orange {
+    background-color: rgba(249, 115, 22, 0.12);
+  }
+  :root .icon-bg-yellow {
+    background-color: rgba(234, 179, 8, 0.12);
+  }
+
+  /* Dark mode data colors */
+  .dark .text-main-title {
+    color: oklch(0.985 0 0);
+  }
+
+  .dark .text-saved-amount {
+    color: oklch(0.7 0.17 160);
+  }
+  .dark .text-to-go-amount {
+    color: oklch(0.75 0.15 50);
+  }
+  .dark .text-target-amount {
+    color: oklch(0.985 0 0);
+  }
+  .dark .text-monthly-target {
+    color: oklch(0.65 0.18 240);
+  }
+
+  /* Dark mode icon backgrounds */
+  .dark .icon-bg-emerald {
+    background-color: oklch(0.7 0.17 160 / 0.1);
+  }
+  .dark .icon-bg-blue {
+    background-color: oklch(0.6 0.15 240 / 0.1);
+  }
+  .dark .icon-bg-purple {
+    background-color: oklch(0.6 0.15 300 / 0.1);
+  }
+  .dark .icon-bg-orange {
+    background-color: oklch(0.7 0.15 50 / 0.1);
+  }
+  .dark .icon-bg-yellow {
+    background-color: oklch(0.75 0.15 90 / 0.1);
+  }
+
+  /* Manual Light Mode Override: Card Styling */
+  :root .card-premium {
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .dark .card-premium {
+    background-color: oklch(0.205 0 0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Profile Menu Glassmorphism Styling */
+  :root .profile-menu-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .dark .profile-menu-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  :root .border-profile-menu {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .border-profile-menu {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* About & Share Modal Glassmorphism Styling */
+  :root .about-modal-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .dark .about-modal-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  :root .border-about-modal {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .border-about-modal {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Statistics Modal Glassmorphism Styling */
+  :root .statistics-modal-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .dark .statistics-modal-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Statistics Card Glassmorphism */
+  :root .stat-card-glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .dark .stat-card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Statistics Icon Backgrounds */
+  :root .stat-icon-blue {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+  :root .stat-icon-green {
+    background-color: rgba(16, 185, 129, 0.15);
+  }
+  :root .stat-icon-purple {
+    background-color: rgba(168, 85, 247, 0.15);
+  }
+  :root .stat-icon-orange {
+    background-color: rgba(249, 115, 22, 0.15);
+  }
+
+  .dark .stat-icon-blue {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+  .dark .stat-icon-green {
+    background-color: rgba(16, 185, 129, 0.2);
+  }
+  .dark .stat-icon-purple {
+    background-color: rgba(168, 85, 247, 0.2);
+  }
+  .dark .stat-icon-orange {
+    background-color: rgba(249, 115, 22, 0.2);
+  }
+
+  /* Staggered Goal Card Entrance Animations */
+  @keyframes goalCardEntrance {
+    0% {
+      opacity: 0;
+      filter: blur(10px);
+      transform: translateY(20px);
     }
-    .text-emerald-500 {
-        color: oklch(0.7 0.17 160);
+    100% {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
     }
-    .text-emerald-600 {
-        color: oklch(0.6 0.16 160);
+  }
+
+  .goal-card-entrance {
+    opacity: 0;
+    animation: goalCardEntrance 0.6s ease-out forwards;
+  }
+
+  /* Staggered Table Row Entrance Animations */
+  @keyframes tableRowEntrance {
+    0% {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateX(-10px);
     }
-    .bg-emerald-400 {
-        background-color: oklch(0.8 0.15 160);
+    100% {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateX(0);
     }
-    .bg-emerald-500 {
-        background-color: oklch(0.7 0.17 160);
-    }
-    .bg-emerald-600 {
-        background-color: oklch(0.6 0.16 160);
-    }
-    .bg-emerald-700 {
-        background-color: oklch(0.5 0.15 160);
-    }
-    .border-emerald-500 {
-        border-color: oklch(0.7 0.17 160);
-    }
-    .fill-emerald-500 {
-        fill: oklch(0.7 0.17 160);
-    }
-    .hover\:bg-emerald-700:hover {
-        background-color: oklch(0.5 0.15 160);
-    }
-    .hover\:text-emerald-400:hover {
-        color: oklch(0.8 0.15 160);
-    }
-    .hover\:border-emerald-500\/50:hover {
-        border-color: oklch(0.7 0.17 160 / 0.5);
-    }
-    .group:hover .group-hover\:text-emerald-500 {
-        color: oklch(0.7 0.17 160);
-    }
-    .bg-emerald-500\/10 {
-        background-color: oklch(0.7 0.17 160 / 0.1);
-    }
-    .border-emerald-500\/20 {
-        border-color: oklch(0.7 0.17 160 / 0.2);
-    }
-    .focus\:border-emerald-500:focus {
-        border-color: oklch(0.7 0.17 160);
-    }
-    
-    /* Manual Light Mode Overrides: Text Colors */
-    :root .text-main-title {
-        color: #1E293B;
-    }
-    
-    :root .text-saved-amount {
-        color: oklch(0.55 0.16 160);
-    }
-    
-    :root .text-to-go-amount {
-        color: #D97706;
-    }
-    
-    :root .text-target-amount {
-        color: #475569;
-    }
-    
-    :root .text-monthly-target {
-        color: #1D4ED8;
-    }
-    
-    /* Manual Light Mode Overrides: Icon Backgrounds with Soft Tints */
-    :root .icon-bg-emerald {
-        background-color: rgba(16, 185, 129, 0.12);
-    }
-    :root .icon-bg-blue {
-        background-color: rgba(59, 130, 246, 0.12);
-    }
-    :root .icon-bg-purple {
-        background-color: rgba(168, 85, 247, 0.12);
-    }
-    :root .icon-bg-orange {
-        background-color: rgba(249, 115, 22, 0.12);
-    }
-    :root .icon-bg-yellow {
-        background-color: rgba(234, 179, 8, 0.12);
-    }
-    
-    /* Dark mode data colors */
-    .dark .text-main-title {
-        color: oklch(0.985 0 0);
-    }
-    
-    .dark .text-saved-amount {
-        color: oklch(0.7 0.17 160);
-    }
-    .dark .text-to-go-amount {
-        color: oklch(0.75 0.15 50);
-    }
-    .dark .text-target-amount {
-        color: oklch(0.985 0 0);
-    }
-    .dark .text-monthly-target {
-        color: oklch(0.65 0.18 240);
-    }
-    
-    /* Dark mode icon backgrounds */
-    .dark .icon-bg-emerald {
-        background-color: oklch(0.7 0.17 160 / 0.1);
-    }
-    .dark .icon-bg-blue {
-        background-color: oklch(0.6 0.15 240 / 0.1);
-    }
-    .dark .icon-bg-purple {
-        background-color: oklch(0.6 0.15 300 / 0.1);
-    }
-    .dark .icon-bg-orange {
-        background-color: oklch(0.7 0.15 50 / 0.1);
-    }
-    .dark .icon-bg-yellow {
-        background-color: oklch(0.75 0.15 90 / 0.1);
-    }
-    
-    /* Manual Light Mode Override: Card Styling */
-    :root .card-premium {
-        background-color: #FFFFFF;
-        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    }
-    
-    .dark .card-premium {
-        background-color: oklch(0.205 0 0);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Profile Menu Glassmorphism Styling */
-    :root .profile-menu-glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    .dark .profile-menu-glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    :root .border-profile-menu {
-        border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-    
-    .dark .border-profile-menu {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    /* About & Share Modal Glassmorphism Styling */
-    :root .about-modal-glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    .dark .about-modal-glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    :root .border-about-modal {
-        border: 1px solid rgba(0, 0, 0, 0.08);
-    }
-    
-    .dark .border-about-modal {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Statistics Modal Glassmorphism Styling */
-    :root .statistics-modal-glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-    }
-    
-    .dark .statistics-modal-glass {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-    }
-    
-    /* Statistics Card Glassmorphism */
-    :root .stat-card-glass {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    
-    .dark .stat-card-glass {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    }
-    
-    /* Statistics Icon Backgrounds */
-    :root .stat-icon-blue {
-        background-color: rgba(59, 130, 246, 0.15);
-    }
-    :root .stat-icon-green {
-        background-color: rgba(16, 185, 129, 0.15);
-    }
-    :root .stat-icon-purple {
-        background-color: rgba(168, 85, 247, 0.15);
-    }
-    :root .stat-icon-orange {
-        background-color: rgba(249, 115, 22, 0.15);
-    }
-    
-    .dark .stat-icon-blue {
-        background-color: rgba(59, 130, 246, 0.2);
-    }
-    .dark .stat-icon-green {
-        background-color: rgba(16, 185, 129, 0.2);
-    }
-    .dark .stat-icon-purple {
-        background-color: rgba(168, 85, 247, 0.2);
-    }
-    .dark .stat-icon-orange {
-        background-color: rgba(249, 115, 22, 0.2);
-    }
-    
-    /* Staggered Goal Card Entrance Animations */
-    @keyframes goalCardEntrance {
-        0% {
-            opacity: 0;
-            filter: blur(10px);
-            transform: translateY(20px);
-        }
-        100% {
-            opacity: 1;
-            filter: blur(0);
-            transform: translateY(0);
-        }
-    }
-    
-    .goal-card-entrance {
-        opacity: 0;
-        animation: goalCardEntrance 0.6s ease-out forwards;
-    }
-    
-    /* Staggered Table Row Entrance Animations */
-    @keyframes tableRowEntrance {
-        0% {
-            opacity: 0;
-            filter: blur(8px);
-            transform: translateX(-10px);
-        }
-        100% {
-            opacity: 1;
-            filter: blur(0);
-            transform: translateX(0);
-        }
-    }
-    
-    .table-row-entrance {
-        opacity: 0;
-        animation: tableRowEntrance 0.5s ease-out forwards;
-    }
+  }
+
+  .table-row-entrance {
+    opacity: 0;
+    animation: tableRowEntrance 0.5s ease-out forwards;
+  }
 }
 
 /* Progress Bar Styling - Fixed Light Theme Colors with High Specificity */
 @layer components {
-    /* Light Mode Progress Bar - Explicit Color Overrides */
-    :root [data-progress-indicator],
-    :root [role="progressbar"] > div {
-        background-color: #10b981 !important;
-    }
-    
-    :root [data-progress-root],
-    :root [role="progressbar"] {
-        background-color: #374151 !important;
-    }
-    
-    /* Dark Mode Progress Bar */
-    .dark [data-progress-indicator],
-    .dark [role="progressbar"] > div {
-        background-color: oklch(0.7 0.17 160) !important;
-    }
-    
-    .dark [data-progress-root],
-    .dark [role="progressbar"] {
-        background-color: oklch(0.269 0 0) !important;
-    }
-    
-    /* Expired Goal Progress Bar - Red Color for Both Themes */
-    :root .progress-expired [data-progress-indicator],
-    :root .progress-expired [role="progressbar"] > div {
-        background-color: #ef4444 !important;
-    }
-    
-    .dark .progress-expired [data-progress-indicator],
-    .dark .progress-expired [role="progressbar"] > div {
-        background-color: #ef4444 !important;
-    }
+  /* Light Mode Progress Bar - Explicit Color Overrides */
+  :root [data-progress-indicator],
+  :root [role="progressbar"] > div {
+    background-color: #10b981 !important;
+  }
+
+  :root [data-progress-root],
+  :root [role="progressbar"] {
+    background-color: #374151 !important;
+  }
+
+  /* Dark Mode Progress Bar */
+  .dark [data-progress-indicator],
+  .dark [role="progressbar"] > div {
+    background-color: oklch(0.7 0.17 160) !important;
+  }
+
+  .dark [data-progress-root],
+  .dark [role="progressbar"] {
+    background-color: oklch(0.269 0 0) !important;
+  }
+
+  /* Expired Goal Progress Bar - Red Color for Both Themes */
+  :root .progress-expired [data-progress-indicator],
+  :root .progress-expired [role="progressbar"] > div {
+    background-color: #ef4444 !important;
+  }
+
+  .dark .progress-expired [data-progress-indicator],
+  .dark .progress-expired [role="progressbar"] > div {
+    background-color: #ef4444 !important;
+  }
 }
 
 .progress-bar.expired {
-    background-color: #ef4444 !important;
+  background-color: #ef4444 !important;
 }

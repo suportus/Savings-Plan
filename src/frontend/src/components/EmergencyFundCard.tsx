@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { Eye, EyeOff, Plus, Minus, ChevronDown } from 'lucide-react';
-import { useGetEmergencyFund, useUpdateEmergencyFund, useGetCallerUserProfile } from '../hooks/useQueries';
-import { Currency } from '../backend';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,47 +6,57 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ChevronDown, Eye, EyeOff, Minus, Plus } from "lucide-react";
+import { useState } from "react";
+import { Currency } from "../backend";
+import {
+  useGetCallerUserProfile,
+  useGetEmergencyFund,
+  useUpdateEmergencyFund,
+} from "../hooks/useQueries";
 
 export default function EmergencyFundCard() {
   const { data: emergencyFund } = useGetEmergencyFund();
   const { data: userProfile } = useGetCallerUserProfile();
   const { mutate: updateEmergencyFund, isPending } = useUpdateEmergencyFund();
-  
+
   const [isVisible, setIsVisible] = useState(true);
   const [showBreakdown, setShowBreakdown] = useState(false);
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
-  const [adjustType, setAdjustType] = useState<'add' | 'subtract'>('add');
-  const [adjustAmount, setAdjustAmount] = useState('');
-  const [adjustTarget, setAdjustTarget] = useState<'bank' | 'cash'>('bank');
+  const [adjustType, setAdjustType] = useState<"add" | "subtract">("add");
+  const [adjustAmount, setAdjustAmount] = useState("");
+  const [adjustTarget, setAdjustTarget] = useState<"bank" | "cash">("bank");
 
-  const totalAmount = (emergencyFund?.bankAmount || 0) + (emergencyFund?.cashAmount || 0);
-  
+  const totalAmount =
+    (emergencyFund?.bankAmount || 0) + (emergencyFund?.cashAmount || 0);
+
   // Use global currency from user profile
   const globalCurrency = userProfile?.defaultCurrency || Currency.usd;
-  const currencySymbol = globalCurrency === Currency.eur ? '€' : '$';
+  const currencySymbol = globalCurrency === Currency.eur ? "€" : "$";
 
-  const handleAdjust = (type: 'add' | 'subtract') => {
+  const handleAdjust = (type: "add" | "subtract") => {
     setAdjustType(type);
-    setAdjustAmount('');
+    setAdjustAmount("");
     setShowAdjustDialog(true);
   };
 
   const handleSubmitAdjustment = () => {
-    const amount = parseFloat(adjustAmount);
-    if (isNaN(amount) || amount <= 0) {
+    const amount = Number.parseFloat(adjustAmount);
+    if (Number.isNaN(amount) || amount <= 0) {
       return;
     }
 
     if (!emergencyFund) return;
 
-    const finalAmount = adjustType === 'subtract' ? -amount : amount;
-    
+    const finalAmount = adjustType === "subtract" ? -amount : amount;
+
     let newBank = emergencyFund.bankAmount;
     let newCash = emergencyFund.cashAmount;
 
-    if (adjustTarget === 'bank') {
+    if (adjustTarget === "bank") {
       newBank = Math.max(0, emergencyFund.bankAmount + finalAmount);
     } else {
       newCash = Math.max(0, emergencyFund.cashAmount + finalAmount);
@@ -62,9 +67,9 @@ export default function EmergencyFundCard() {
       {
         onSuccess: () => {
           setShowAdjustDialog(false);
-          setAdjustAmount('');
+          setAdjustAmount("");
         },
-      }
+      },
     );
   };
 
@@ -74,14 +79,28 @@ export default function EmergencyFundCard() {
         {/* Top row: icon + text content + visibility toggle */}
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            <svg
+              className="w-5 h-5 text-emerald-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-label="Emergency Fund"
+              role="img"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
             </svg>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-muted-foreground">Emergency Fund</p>
             <p className="text-2xl font-bold text-main-title">
-              {isVisible ? `${currencySymbol}${totalAmount.toLocaleString()}` : '****'}
+              {isVisible
+                ? `${currencySymbol}${totalAmount.toLocaleString()}`
+                : "****"}
             </p>
           </div>
           <Button
@@ -102,7 +121,8 @@ export default function EmergencyFundCard() {
         <div className="flex items-center justify-between ml-[52px]">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => handleAdjust('add')}
+              type="button"
+              onClick={() => handleAdjust("add")}
               disabled={isPending}
               className="w-6 h-6 rounded flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-50"
               title="Add funds"
@@ -110,7 +130,8 @@ export default function EmergencyFundCard() {
               <Plus className="w-4 h-4" />
             </button>
             <button
-              onClick={() => handleAdjust('subtract')}
+              type="button"
+              onClick={() => handleAdjust("subtract")}
               disabled={isPending}
               className="w-6 h-6 rounded flex items-center justify-center hover:bg-accent transition-colors disabled:opacity-50"
               title="Subtract funds"
@@ -121,11 +142,14 @@ export default function EmergencyFundCard() {
 
           {/* Chevron toggle - same row, right-aligned */}
           <button
+            type="button"
             onClick={() => setShowBreakdown(!showBreakdown)}
             className="w-6 h-6 rounded flex items-center justify-center hover:bg-accent transition-all"
             title="Toggle breakdown"
           >
-            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${showBreakdown ? 'rotate-180' : ''}`} />
+            <ChevronDown
+              className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${showBreakdown ? "rotate-180" : ""}`}
+            />
           </button>
         </div>
 
@@ -135,11 +159,17 @@ export default function EmergencyFundCard() {
             <div className="space-y-1 text-sm pr-8">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Bank:</span>
-                <span className="font-medium">{currencySymbol}{(emergencyFund?.bankAmount || 0).toLocaleString()}</span>
+                <span className="font-medium">
+                  {currencySymbol}
+                  {(emergencyFund?.bankAmount || 0).toLocaleString()}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Cash:</span>
-                <span className="font-medium">{currencySymbol}{(emergencyFund?.cashAmount || 0).toLocaleString()}</span>
+                <span className="font-medium">
+                  {currencySymbol}
+                  {(emergencyFund?.cashAmount || 0).toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -150,36 +180,38 @@ export default function EmergencyFundCard() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {adjustType === 'add' ? 'Add to' : 'Subtract from'} Emergency Fund
+              {adjustType === "add" ? "Add to" : "Subtract from"} Emergency Fund
             </DialogTitle>
             <DialogDescription>
-              Enter the amount to {adjustType === 'add' ? 'add to' : 'subtract from'} your emergency fund.
+              Enter the amount to{" "}
+              {adjustType === "add" ? "add to" : "subtract from"} your emergency
+              fund.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="target">Target</Label>
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant={adjustTarget === 'bank' ? 'default' : 'outline'}
-                  onClick={() => setAdjustTarget('bank')}
+                  variant={adjustTarget === "bank" ? "default" : "outline"}
+                  onClick={() => setAdjustTarget("bank")}
                   className="flex-1"
                 >
                   Bank
                 </Button>
                 <Button
                   type="button"
-                  variant={adjustTarget === 'cash' ? 'default' : 'outline'}
-                  onClick={() => setAdjustTarget('cash')}
+                  variant={adjustTarget === "cash" ? "default" : "outline"}
+                  onClick={() => setAdjustTarget("cash")}
                   className="flex-1"
                 >
                   Cash
                 </Button>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="amount">Amount ({currencySymbol})</Label>
               <Input
@@ -203,10 +235,14 @@ export default function EmergencyFundCard() {
             </Button>
             <Button
               onClick={handleSubmitAdjustment}
-              disabled={!adjustAmount || parseFloat(adjustAmount) <= 0 || isPending}
+              disabled={
+                !adjustAmount ||
+                Number.parseFloat(adjustAmount) <= 0 ||
+                isPending
+              }
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              {isPending ? 'Updating...' : 'Confirm'}
+              {isPending ? "Updating..." : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>

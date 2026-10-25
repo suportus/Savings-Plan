@@ -8,6 +8,42 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const EmergencyFund = IDL.Record({
+  'bankAmount' : IDL.Float64,
+  'cashAmount' : IDL.Float64,
+});
+export const ThemePreference = IDL.Variant({
+  'dark' : IDL.Null,
+  'light' : IDL.Null,
+});
+export const Currency = IDL.Variant({ 'eur' : IDL.Null, 'usd' : IDL.Null });
+export const UserProfile = IDL.Record({
+  'name' : IDL.Text,
+  'themePreference' : ThemePreference,
+  'defaultCurrency' : Currency,
+});
+export const Error = IDL.Variant({
+  'FrontendOriginsNotConfigured' : IDL.Null,
+  'MixedSsoSources' : IDL.Record({
+    'otherKeys' : IDL.Vec(IDL.Text),
+    'ssoKeys' : IDL.Vec(IDL.Text),
+  }),
+  'Stale' : IDL.Record({ 'ageNs' : IDL.Nat }),
+  'MalformedCandid' : IDL.Null,
+  'AmbiguousAttribute' : IDL.Record({
+    'field' : IDL.Text,
+    'sources' : IDL.Vec(IDL.Text),
+  }),
+  'NoAttributes' : IDL.Null,
+  'UnknownNonce' : IDL.Null,
+  'UntrustedSsoSource' : IDL.Record({ 'domain' : IDL.Text }),
+  'MissingField' : IDL.Text,
+  'FrontendOriginMismatch' : IDL.Record({
+    'got' : IDL.Text,
+    'expected' : IDL.Vec(IDL.Text),
+  }),
+});
+export const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
 export const SavingGoalId = IDL.Text;
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
@@ -15,17 +51,12 @@ export const UserRole = IDL.Variant({
   'guest' : IDL.Null,
 });
 export const Time = IDL.Int;
-export const Currency = IDL.Variant({ 'eur' : IDL.Null, 'usd' : IDL.Null });
 export const SavingGoalDTO = IDL.Record({
   'name' : IDL.Text,
   'currentSavedAmount' : IDL.Float64,
   'deadline' : IDL.Opt(Time),
   'targetAmount' : IDL.Float64,
   'currency' : Currency,
-});
-export const EmergencyFund = IDL.Record({
-  'bankAmount' : IDL.Float64,
-  'cashAmount' : IDL.Float64,
 });
 export const SavingGoal = IDL.Record({
   'id' : SavingGoalId,
@@ -35,18 +66,26 @@ export const SavingGoal = IDL.Record({
   'targetAmount' : IDL.Float64,
   'currency' : Currency,
 });
-export const ThemePreference = IDL.Variant({
-  'dark' : IDL.Null,
-  'light' : IDL.Null,
-});
-export const UserProfile = IDL.Record({
-  'name' : IDL.Text,
-  'themePreference' : ThemePreference,
-  'defaultCurrency' : Currency,
-});
 
 export const idlService = IDL.Service({
-  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  '__accessControlState' : IDL.Func([], [IDL.Reserved], ['query']),
+  '__emergencyFunds' : IDL.Func(
+      [IDL.Opt(IDL.Principal), IDL.Opt(IDL.Nat)],
+      [IDL.Vec(IDL.Tuple(IDL.Principal, EmergencyFund))],
+      ['query'],
+    ),
+  '__emptyEmergencyFund' : IDL.Func([], [EmergencyFund], ['query']),
+  '__nextId' : IDL.Func([], [IDL.Nat], ['query']),
+  '__savingGoals' : IDL.Func([], [IDL.Reserved], ['query']),
+  '__userProfiles' : IDL.Func(
+      [IDL.Opt(IDL.Principal), IDL.Opt(IDL.Nat)],
+      [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+      ['query'],
+    ),
+  '__userStatistics' : IDL.Func([], [IDL.Reserved], ['query']),
+  '_initialize_access_control' : IDL.Func([], [], []),
+  '_internet_identity_sign_in_finish' : IDL.Func([], [Result], []),
+  '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   'addToCurrentSavedAmount' : IDL.Func([SavingGoalId, IDL.Float64], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createSavingGoal' : IDL.Func([SavingGoalDTO], [SavingGoalId], []),
@@ -94,6 +133,42 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const EmergencyFund = IDL.Record({
+    'bankAmount' : IDL.Float64,
+    'cashAmount' : IDL.Float64,
+  });
+  const ThemePreference = IDL.Variant({
+    'dark' : IDL.Null,
+    'light' : IDL.Null,
+  });
+  const Currency = IDL.Variant({ 'eur' : IDL.Null, 'usd' : IDL.Null });
+  const UserProfile = IDL.Record({
+    'name' : IDL.Text,
+    'themePreference' : ThemePreference,
+    'defaultCurrency' : Currency,
+  });
+  const Error = IDL.Variant({
+    'FrontendOriginsNotConfigured' : IDL.Null,
+    'MixedSsoSources' : IDL.Record({
+      'otherKeys' : IDL.Vec(IDL.Text),
+      'ssoKeys' : IDL.Vec(IDL.Text),
+    }),
+    'Stale' : IDL.Record({ 'ageNs' : IDL.Nat }),
+    'MalformedCandid' : IDL.Null,
+    'AmbiguousAttribute' : IDL.Record({
+      'field' : IDL.Text,
+      'sources' : IDL.Vec(IDL.Text),
+    }),
+    'NoAttributes' : IDL.Null,
+    'UnknownNonce' : IDL.Null,
+    'UntrustedSsoSource' : IDL.Record({ 'domain' : IDL.Text }),
+    'MissingField' : IDL.Text,
+    'FrontendOriginMismatch' : IDL.Record({
+      'got' : IDL.Text,
+      'expected' : IDL.Vec(IDL.Text),
+    }),
+  });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : Error });
   const SavingGoalId = IDL.Text;
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
@@ -101,17 +176,12 @@ export const idlFactory = ({ IDL }) => {
     'guest' : IDL.Null,
   });
   const Time = IDL.Int;
-  const Currency = IDL.Variant({ 'eur' : IDL.Null, 'usd' : IDL.Null });
   const SavingGoalDTO = IDL.Record({
     'name' : IDL.Text,
     'currentSavedAmount' : IDL.Float64,
     'deadline' : IDL.Opt(Time),
     'targetAmount' : IDL.Float64,
     'currency' : Currency,
-  });
-  const EmergencyFund = IDL.Record({
-    'bankAmount' : IDL.Float64,
-    'cashAmount' : IDL.Float64,
   });
   const SavingGoal = IDL.Record({
     'id' : SavingGoalId,
@@ -121,18 +191,26 @@ export const idlFactory = ({ IDL }) => {
     'targetAmount' : IDL.Float64,
     'currency' : Currency,
   });
-  const ThemePreference = IDL.Variant({
-    'dark' : IDL.Null,
-    'light' : IDL.Null,
-  });
-  const UserProfile = IDL.Record({
-    'name' : IDL.Text,
-    'themePreference' : ThemePreference,
-    'defaultCurrency' : Currency,
-  });
   
   return IDL.Service({
-    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    '__accessControlState' : IDL.Func([], [IDL.Reserved], ['query']),
+    '__emergencyFunds' : IDL.Func(
+        [IDL.Opt(IDL.Principal), IDL.Opt(IDL.Nat)],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, EmergencyFund))],
+        ['query'],
+      ),
+    '__emptyEmergencyFund' : IDL.Func([], [EmergencyFund], ['query']),
+    '__nextId' : IDL.Func([], [IDL.Nat], ['query']),
+    '__savingGoals' : IDL.Func([], [IDL.Reserved], ['query']),
+    '__userProfiles' : IDL.Func(
+        [IDL.Opt(IDL.Principal), IDL.Opt(IDL.Nat)],
+        [IDL.Vec(IDL.Tuple(IDL.Principal, UserProfile))],
+        ['query'],
+      ),
+    '__userStatistics' : IDL.Func([], [IDL.Reserved], ['query']),
+    '_initialize_access_control' : IDL.Func([], [], []),
+    '_internet_identity_sign_in_finish' : IDL.Func([], [Result], []),
+    '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'addToCurrentSavedAmount' : IDL.Func([SavingGoalId, IDL.Float64], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createSavingGoal' : IDL.Func([SavingGoalDTO], [SavingGoalId], []),

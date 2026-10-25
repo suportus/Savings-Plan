@@ -1,12 +1,4 @@
-import { useState, useEffect } from 'react';
-import type { SavingGoal } from '../backend';
-import { useUpdateSavingGoal } from '../hooks/useQueries';
-import { Currency } from '../backend';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +6,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useEffect, useState } from "react";
+import type { SavingGoal } from "../backend";
+import { Currency } from "../backend";
+import { useUpdateSavingGoal } from "../hooks/useQueries";
 
 interface EditGoalDialogProps {
   goal: SavingGoal;
@@ -22,12 +28,22 @@ interface EditGoalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDialogProps) {
+export default function EditGoalDialog({
+  goal,
+  open,
+  onOpenChange,
+}: EditGoalDialogProps) {
   const [name, setName] = useState(goal.name);
-  const [currency, setCurrency] = useState<'eur' | 'usd'>(goal.currency === Currency.eur ? 'eur' : 'usd');
-  const [targetAmount, setTargetAmount] = useState(goal.targetAmount.toString());
-  const [currentSavedAmount, setCurrentSavedAmount] = useState(goal.currentSavedAmount.toString());
-  const [deadline, setDeadline] = useState('');
+  const [currency, setCurrency] = useState<"eur" | "usd">(
+    goal.currency === Currency.eur ? "eur" : "usd",
+  );
+  const [targetAmount, setTargetAmount] = useState(
+    goal.targetAmount.toString(),
+  );
+  const [currentSavedAmount, setCurrentSavedAmount] = useState(
+    goal.currentSavedAmount.toString(),
+  );
+  const [deadline, setDeadline] = useState("");
   const [noTimeLimit, setNoTimeLimit] = useState(!goal.deadline);
 
   const { mutate: updateGoal, isPending } = useUpdateSavingGoal();
@@ -35,10 +51,10 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
   useEffect(() => {
     if (goal.deadline) {
       const deadlineDate = new Date(Number(goal.deadline) / 1000000);
-      setDeadline(deadlineDate.toISOString().split('T')[0]);
+      setDeadline(deadlineDate.toISOString().split("T")[0]);
       setNoTimeLimit(false);
     } else {
-      setDeadline('');
+      setDeadline("");
       setNoTimeLimit(true);
     }
   }, [goal.deadline]);
@@ -47,7 +63,7 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
     e.preventDefault();
 
     let deadlineNanoseconds: bigint | undefined = undefined;
-    
+
     if (!noTimeLimit && deadline) {
       const deadlineDate = new Date(deadline);
       deadlineNanoseconds = BigInt(deadlineDate.getTime()) * BigInt(1000000);
@@ -58,9 +74,9 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
         id: goal.id,
         data: {
           name,
-          currency: currency === 'eur' ? Currency.eur : Currency.usd,
-          targetAmount: parseFloat(targetAmount),
-          currentSavedAmount: parseFloat(currentSavedAmount),
+          currency: currency === "eur" ? Currency.eur : Currency.usd,
+          targetAmount: Number.parseFloat(targetAmount),
+          currentSavedAmount: Number.parseFloat(currentSavedAmount),
           deadline: deadlineNanoseconds,
         },
       },
@@ -68,20 +84,18 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
         onSuccess: () => {
           onOpenChange(false);
         },
-      }
+      },
     );
   };
 
-  const minDate = new Date().toISOString().split('T')[0];
+  const minDate = new Date().toISOString().split("T")[0];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Saving Goal</DialogTitle>
-          <DialogDescription>
-            Update your saving goal details
-          </DialogDescription>
+          <DialogDescription>Update your saving goal details</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -99,7 +113,11 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-currency">Currency *</Label>
-              <Select value={currency} onValueChange={(v) => setCurrency(v as 'eur' | 'usd')} disabled={isPending}>
+              <Select
+                value={currency}
+                onValueChange={(v) => setCurrency(v as "eur" | "usd")}
+                disabled={isPending}
+              >
                 <SelectTrigger id="edit-currency">
                   <SelectValue />
                 </SelectTrigger>
@@ -111,7 +129,9 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-deadline">Deadline {!noTimeLimit && '*'}</Label>
+              <Label htmlFor="edit-deadline">
+                Deadline {!noTimeLimit && "*"}
+              </Label>
               <Input
                 id="edit-deadline"
                 type="date"
@@ -181,7 +201,7 @@ export default function EditGoalDialog({ goal, open, onOpenChange }: EditGoalDia
               disabled={isPending}
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
-              {isPending ? 'Saving...' : 'Save Changes'}
+              {isPending ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </form>

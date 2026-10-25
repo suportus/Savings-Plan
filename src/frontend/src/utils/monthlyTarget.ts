@@ -1,4 +1,4 @@
-import type { SavingGoal } from '../backend';
+import type { SavingGoal } from "../backend";
 
 /**
  * Calculates the monthly target amount for a goal using the same logic as GoalCard.
@@ -23,18 +23,23 @@ export function calculateMonthlyTarget(goal: SavingGoal): number | null {
     return null;
   }
 
-  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentSavedAmount);
-  const daysRemaining = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const remainingAmount = Math.max(
+    0,
+    goal.targetAmount - goal.currentSavedAmount,
+  );
+  const daysRemaining = Math.ceil(
+    (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  );
   const monthsRemaining = daysRemaining / 30.44; // Average days per month
 
   // Monthly target correction: if less than 1 month remaining, set to remaining amount
   if (monthsRemaining < 1 && monthsRemaining > 0) {
     return remainingAmount;
-  } else if (monthsRemaining > 0) {
-    return remainingAmount / monthsRemaining;
-  } else {
-    return 0;
   }
+  if (monthsRemaining > 0) {
+    return remainingAmount / monthsRemaining;
+  }
+  return 0;
 }
 
 /**

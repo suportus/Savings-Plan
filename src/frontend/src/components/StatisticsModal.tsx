@@ -1,13 +1,4 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { X, TrendingUp, Target, Award, DollarSign, RotateCcw } from 'lucide-react';
-import { useGetAllSavingGoals } from '../hooks/useQueries';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -16,8 +7,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useState, useEffect } from 'react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Award,
+  DollarSign,
+  RotateCcw,
+  Target,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useGetAllSavingGoals } from "../hooks/useQueries";
 
 interface StatisticsModalProps {
   open: boolean;
@@ -31,7 +38,7 @@ interface LifetimeStats {
   biggestAchievement: number;
 }
 
-const STORAGE_KEY = 'savings-plan-lifetime-stats';
+const STORAGE_KEY = "savings-plan-lifetime-stats";
 
 function getLifetimeStats(): LifetimeStats {
   try {
@@ -40,7 +47,7 @@ function getLifetimeStats(): LifetimeStats {
       return JSON.parse(stored);
     }
   } catch (error) {
-    console.error('Failed to load lifetime stats:', error);
+    console.error("Failed to load lifetime stats:", error);
   }
   return {
     lifetimeGoalsCreated: 0,
@@ -54,7 +61,7 @@ function saveLifetimeStats(stats: LifetimeStats): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
   } catch (error) {
-    console.error('Failed to save lifetime stats:', error);
+    console.error("Failed to save lifetime stats:", error);
   }
 }
 
@@ -72,10 +79,15 @@ export function updateLifetimeStatsOnGoalCompleted(targetAmount: number): void {
   saveLifetimeStats(stats);
 }
 
-export default function StatisticsModal({ open, onOpenChange }: StatisticsModalProps) {
-  const { data: goals, isLoading } = useGetAllSavingGoals();
+export default function StatisticsModal({
+  open,
+  onOpenChange,
+}: StatisticsModalProps) {
+  const { isLoading } = useGetAllSavingGoals();
   const [showResetDialog, setShowResetDialog] = useState(false);
-  const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats>(getLifetimeStats());
+  const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats>(
+    getLifetimeStats(),
+  );
 
   // Refresh stats when modal opens
   useEffect(() => {
@@ -98,7 +110,8 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
 
   const totalGoals = lifetimeStats.lifetimeGoalsCreated;
   const completedGoals = lifetimeStats.lifetimeGoalsCompleted;
-  const successRate = totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : '0.0';
+  const successRate =
+    totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : "0.0";
   const totalSaved = lifetimeStats.lifetimeAmountSaved;
   const biggestAchievement = lifetimeStats.biggestAchievement;
 
@@ -107,6 +120,7 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-2xl statistics-modal-glass border border-white/20">
           <button
+            type="button"
             onClick={() => onOpenChange(false)}
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:pointer-events-none z-50"
           >
@@ -135,8 +149,12 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
                         <TrendingUp className="w-7 h-7 text-blue-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-foreground mb-1 font-medium">Total Goals Created</p>
-                        <p className="text-4xl font-bold text-foreground">{totalGoals}</p>
+                        <p className="text-sm text-muted-foreground mb-1 font-medium">
+                          Total Goals Created
+                        </p>
+                        <p className="text-4xl font-bold text-foreground">
+                          {totalGoals}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -148,8 +166,12 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
                         <Target className="w-7 h-7 text-emerald-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-foreground mb-1 font-medium">Completed Goals</p>
-                        <p className="text-4xl font-bold text-foreground">{completedGoals}</p>
+                        <p className="text-sm text-muted-foreground mb-1 font-medium">
+                          Completed Goals
+                        </p>
+                        <p className="text-4xl font-bold text-foreground">
+                          {completedGoals}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-1">
                           ({completedGoals}/{totalGoals} - {successRate}%)
                         </p>
@@ -164,11 +186,13 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
                         <DollarSign className="w-7 h-7 text-purple-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-foreground mb-1 font-medium">Total Saved Amount</p>
+                        <p className="text-sm text-muted-foreground mb-1 font-medium">
+                          Total Saved Amount
+                        </p>
                         <p className="text-3xl font-bold text-foreground break-words">
-                          {totalSaved.toLocaleString(undefined, { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
+                          {totalSaved.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -185,11 +209,13 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
                         <Award className="w-7 h-7 text-orange-500" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-foreground mb-1 font-medium">Biggest Achievement</p>
+                        <p className="text-sm text-muted-foreground mb-1 font-medium">
+                          Biggest Achievement
+                        </p>
                         <p className="text-3xl font-bold text-foreground break-words">
-                          {biggestAchievement.toLocaleString(undefined, { 
-                            minimumFractionDigits: 2, 
-                            maximumFractionDigits: 2 
+                          {biggestAchievement.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                           })}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -222,7 +248,8 @@ export default function StatisticsModal({ open, onOpenChange }: StatisticsModalP
           <AlertDialogHeader>
             <AlertDialogTitle>Reset Statistics?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to reset all statistics? This will clear all your achievement data and cannot be undone.
+              Are you sure you want to reset all statistics? This will clear all
+              your achievement data and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

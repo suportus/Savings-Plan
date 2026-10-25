@@ -1,37 +1,40 @@
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { X, Copy, Check } from 'lucide-react';
-import { SiX } from 'react-icons/si';
-import { useState } from 'react';
-import { toast } from 'sonner';
+} from "@/components/ui/dialog";
+import { Check, Copy, X } from "lucide-react";
+import { useState } from "react";
+import { SiX } from "react-icons/si";
+import { toast } from "sonner";
 
 interface AboutShareModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const APP_URL = 'https://savings-plan-b8g.caffeine.xyz/';
+const APP_URL = "https://savings-plan-b8g.caffeine.xyz/";
 
-export default function AboutShareModal({ open, onOpenChange }: AboutShareModalProps) {
+export default function AboutShareModal({
+  open,
+  onOpenChange,
+}: AboutShareModalProps) {
   const [copied, setCopied] = useState(false);
 
   const handleFollowX = () => {
-    window.open('https://x.com/suportus', '_blank', 'noopener,noreferrer');
+    window.open("https://x.com/suportus", "_blank", "noopener,noreferrer");
   };
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(APP_URL);
       setCopied(true);
-      toast.success('Link copied to clipboard!');
+      toast.success("Link copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast.error('Failed to copy link');
+    } catch (_error) {
+      toast.error("Failed to copy link");
     }
   };
 
@@ -39,6 +42,7 @@ export default function AboutShareModal({ open, onOpenChange }: AboutShareModalP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md about-modal-glass border-about-modal">
         <button
+          type="button"
           onClick={() => onOpenChange(false)}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:pointer-events-none"
         >
@@ -54,15 +58,16 @@ export default function AboutShareModal({ open, onOpenChange }: AboutShareModalP
 
         <div className="flex flex-col items-center gap-6 py-6 px-4">
           <p className="text-center text-muted-foreground max-w-sm leading-relaxed">
-            Your personal financial assistant for tracking virtual saving buckets. 
-            Securely built and hosted on the Internet Computer blockchain.
+            Your personal financial assistant for tracking virtual saving
+            buckets. Securely built and hosted on the Internet Computer
+            blockchain.
           </p>
 
           <div className="flex flex-col items-center gap-4 w-full max-w-sm">
             <p className="text-sm text-center text-muted-foreground break-all px-2 font-mono">
               {APP_URL}
             </p>
-            
+
             <Button
               onClick={handleCopyLink}
               size="lg"
@@ -93,7 +98,7 @@ export default function AboutShareModal({ open, onOpenChange }: AboutShareModalP
           </Button>
 
           <div className="text-center text-sm text-muted-foreground pt-4 border-t border-border w-full mt-2">
-            © 2026. Built with ❤️ using{' '}
+            © 2026. Built with ❤️ using{" "}
             <a
               href="https://caffeine.ai"
               target="_blank"
