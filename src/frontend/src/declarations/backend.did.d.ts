@@ -55,6 +55,7 @@ export interface _SERVICE {
     [[] | [Currency], [] | [Time]],
     Array<SavingGoal>
   >,
+  'getFrontendCycleBalance' : ActorMethod<[], [] | [bigint]>,
   'getSavingGoal' : ActorMethod<[SavingGoalId], [] | [SavingGoal]>,
   'getStatistics' : ActorMethod<
     [],

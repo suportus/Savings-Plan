@@ -65,6 +65,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(SavingGoal)],
         ['query'],
       ),
+    'getFrontendCycleBalance' : IDL.Func([], [IDL.Opt(IDL.Nat)], []),
     'getSavingGoal' : IDL.Func(
         [SavingGoalId],
         [IDL.Opt(SavingGoal)],

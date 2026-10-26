@@ -13,6 +13,7 @@ import { Variant_frontend_backend } from "../backend";
 import {
   useClaimCycles,
   useGetCycleBalance,
+  useGetFrontendCycleBalance,
   useGetWalletCycles,
 } from "../hooks/useQueries";
 import { getCanisterEnv } from "../lib/canisterEnv";
@@ -34,6 +35,47 @@ function formatTrillions(cycles: bigint): string {
   return `${trillions.toLocaleString(undefined, { maximumFractionDigits: 3 })} T`;
 }
 
+// One balance line in the balance card. `null` means the balance can't be read.
+function BalanceRow({
+  label,
+  balance,
+  isLoading,
+  isError,
+  unavailableText,
+}: {
+  label: string;
+  balance: bigint | null | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  unavailableText?: string;
+}) {
+  const isLow =
+    balance !== undefined && balance !== null && balance < LOW_CYCLES_THRESHOLD;
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground mb-1 font-medium">{label}</p>
+      {isLoading ? (
+        <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      ) : isError || balance === undefined ? (
+        <p className="text-sm text-destructive">Could not load the balance.</p>
+      ) : balance === null ? (
+        <p className="text-sm text-muted-foreground">{unavailableText}</p>
+      ) : (
+        <>
+          <p
+            className={`text-3xl font-bold ${isLow ? "text-destructive" : "text-foreground"}`}
+          >
+            {formatTrillions(balance)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 break-all">
+            {balance.toLocaleString()} cycles
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function CyclesModal({ open, onOpenChange }: CyclesModalProps) {
   const {
     data: balance,
@@ -43,6 +85,13 @@ export default function CyclesModal({ open, onOpenChange }: CyclesModalProps) {
     isFetching,
   } = useGetCycleBalance(open);
   const {
+    data: frontendBalance,
+    isLoading: isLoadingFrontend,
+    isError: isFrontendError,
+    refetch: refetchFrontend,
+    isFetching: isFetchingFrontend,
+  } = useGetFrontendCycleBalance(open);
+  const {
     data: walletCycles,
     isLoading: isLoadingWallet,
     isError: isWalletError,
@@ -51,7 +100,12 @@ export default function CyclesModal({ open, onOpenChange }: CyclesModalProps) {
   } = useGetWalletCycles(open);
   const claimCycles = useClaimCycles();
   const { backendId, frontendId } = getCanisterEnv();
-  const isLow = balance !== undefined && balance < LOW_CYCLES_THRESHOLD;
+  const lowCanisters = [
+    balance !== undefined && balance < LOW_CYCLES_THRESHOLD && "backend",
+    frontendBalance != null &&
+      frontendBalance < LOW_CYCLES_THRESHOLD &&
+      "frontend",
+  ].filter(Boolean);
   const canClaim =
     walletCycles !== undefined &&
     walletCycles > CYCLES_LEDGER_FEE &&
@@ -85,46 +139,45 @@ export default function CyclesModal({ open, onOpenChange }: CyclesModalProps) {
               <div className="w-12 h-12 rounded-lg stat-icon-green flex items-center justify-center flex-shrink-0">
                 <Fuel className="w-6 h-6 text-emerald-500" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-muted-foreground mb-1 font-medium">
-                  Backend balance
-                </p>
-                {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                ) : isError || balance === undefined ? (
-                  <p className="text-sm text-destructive">
-                    Could not load the balance.
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-3xl font-bold text-foreground">
-                      {formatTrillions(balance)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 break-all">
-                      {balance.toLocaleString()} cycles
-                    </p>
-                  </>
-                )}
+              <div className="flex-1 min-w-0 space-y-4">
+                <BalanceRow
+                  label="Backend balance"
+                  balance={balance}
+                  isLoading={isLoading}
+                  isError={isError}
+                />
+                <BalanceRow
+                  label="Frontend balance"
+                  balance={frontendBalance}
+                  isLoading={isLoadingFrontend}
+                  isError={isFrontendError}
+                  unavailableText="Not available: the backend is not a controller of the frontend."
+                />
               </div>
               <Button
-                onClick={() => refetch()}
+                onClick={() => {
+                  refetch();
+                  refetchFrontend();
+                }}
                 variant="ghost"
                 size="icon"
-                disabled={isFetching}
+                disabled={isFetching || isFetchingFrontend}
                 aria-label="Refresh"
                 title="Refresh"
               >
                 <RefreshCw
-                  className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
+                  className={`w-4 h-4 ${isFetching || isFetchingFrontend ? "animate-spin" : ""}`}
                 />
               </Button>
             </div>
           </div>
 
-          {isLow && (
+          {lowCanisters.length > 0 && (
             <Alert variant="destructive">
               <AlertTriangle />
-              <AlertTitle>Low on cycles</AlertTitle>
+              <AlertTitle>
+                Low on cycles ({lowCanisters.join(" and ")})
+              </AlertTitle>
               <AlertDescription>
                 The balance is below {formatTrillions(LOW_CYCLES_THRESHOLD)}.
                 When it runs out, the app stops working, and if it stays empty
@@ -151,11 +204,6 @@ export default function CyclesModal({ open, onOpenChange }: CyclesModalProps) {
                 </p>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              The app can only show the backend balance. The frontend balance
-              can't be read from here, so move some cycles to the frontend now
-              and then as well. It uses fewer cycles than the backend.
-            </p>
           </div>
 
           <div className="space-y-4 pt-4 border-t border-white/10 text-sm">

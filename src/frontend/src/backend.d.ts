@@ -67,6 +67,7 @@ export interface backendInterface {
     getCycleBalance(): Promise<bigint>;
     getEmergencyFund(): Promise<EmergencyFund>;
     getFilteredSavingGoals(currency: Currency | null, deadline: Time | null): Promise<Array<SavingGoal>>;
+    getFrontendCycleBalance(): Promise<bigint | null>;
     getSavingGoal(id: SavingGoalId): Promise<SavingGoal | null>;
     getStatistics(): Promise<{
         biggestAchievement: number;

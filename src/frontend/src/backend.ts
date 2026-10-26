@@ -101,6 +101,7 @@ export interface backendInterface {
     getCycleBalance(): Promise<bigint>;
     getEmergencyFund(): Promise<EmergencyFund>;
     getFilteredSavingGoals(currency: Currency | null, deadline: Time | null): Promise<Array<SavingGoal>>;
+    getFrontendCycleBalance(): Promise<bigint | null>;
     getSavingGoal(id: SavingGoalId): Promise<SavingGoal | null>;
     getStatistics(): Promise<{
         biggestAchievement: number;
@@ -164,9 +165,13 @@ export class Backend implements backendInterface {
         const result = await this.actor.getFilteredSavingGoals(to_candid_opt_n14(arg0), to_candid_opt_n15(arg1));
         return from_candid_vec_n5(result);
     }
+    async getFrontendCycleBalance(): Promise<bigint | null> {
+        const result = await this.actor.getFrontendCycleBalance();
+        return from_candid_opt_n16(result);
+    }
     async getSavingGoal(arg0: SavingGoalId): Promise<SavingGoal | null> {
         const result = await this.actor.getSavingGoal(arg0);
-        return from_candid_opt_n16(result);
+        return from_candid_opt_n17(result);
     }
     async getStatistics(): Promise<{
         biggestAchievement: number;
@@ -175,7 +180,7 @@ export class Backend implements backendInterface {
         totalSavedAmount: number;
     } | null> {
         const result = await this.actor.getStatistics();
-        return from_candid_opt_n17(result);
+        return from_candid_opt_n18(result);
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         const result = await this.actor.getUserProfile(arg0);
@@ -198,7 +203,7 @@ export class Backend implements backendInterface {
         return result;
     }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
-        const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n18(arg0));
+        const result = await this.actor.saveCallerUserProfile(to_candid_UserProfile_n19(arg0));
         return result;
     }
     async updateEmergencyFund(arg0: number, arg1: number): Promise<void> {
@@ -225,10 +230,13 @@ function from_candid_UserProfile_n11(value: _UserProfile): UserProfile {
 function from_candid_opt_n10(value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : from_candid_UserProfile_n11(value[0]);
 }
-function from_candid_opt_n16(value: [] | [_SavingGoal]): SavingGoal | null {
+function from_candid_opt_n16(value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n17(value: [] | [_SavingGoal]): SavingGoal | null {
     return value.length === 0 ? null : from_candid_SavingGoal_n6(value[0]);
 }
-function from_candid_opt_n17(value: [] | [{
+function from_candid_opt_n18(value: [] | [{
         biggestAchievement: number;
         completedGoals: bigint;
         totalGoalsCreated: bigint;
@@ -296,15 +304,15 @@ function to_candid_Currency_n4(value: Currency): _Currency {
 function to_candid_SavingGoalDTO_n2(value: SavingGoalDTO): _SavingGoalDTO {
     return to_candid_record_n3(value);
 }
-function to_candid_ThemePreference_n20(value: ThemePreference): _ThemePreference {
+function to_candid_ThemePreference_n21(value: ThemePreference): _ThemePreference {
     return value == ThemePreference.dark ? {
         dark: null
     } : value == ThemePreference.light ? {
         light: null
     } : value;
 }
-function to_candid_UserProfile_n18(value: UserProfile): _UserProfile {
-    return to_candid_record_n19(value);
+function to_candid_UserProfile_n19(value: UserProfile): _UserProfile {
+    return to_candid_record_n20(value);
 }
 function to_candid_opt_n14(value: Currency | null): [] | [_Currency] {
     return value === null ? candid_none() : candid_some(to_candid_Currency_n4(value));
@@ -312,7 +320,7 @@ function to_candid_opt_n14(value: Currency | null): [] | [_Currency] {
 function to_candid_opt_n15(value: Time | null): [] | [_Time] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_record_n19(value: {
+function to_candid_record_n20(value: {
     name: string;
     themePreference: ThemePreference;
     defaultCurrency: Currency;
@@ -323,7 +331,7 @@ function to_candid_record_n19(value: {
 } {
     return {
         name: value.name,
-        themePreference: to_candid_ThemePreference_n20(value.themePreference),
+        themePreference: to_candid_ThemePreference_n21(value.themePreference),
         defaultCurrency: to_candid_Currency_n4(value.defaultCurrency)
     };
 }

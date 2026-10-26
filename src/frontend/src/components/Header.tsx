@@ -29,6 +29,7 @@ import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useGetCallerUserProfile,
   useGetCycleBalance,
+  useGetFrontendCycleBalance,
   useUpdateThemePreference,
   useUpdateUserCurrency,
   useUpdateUserName,
@@ -68,8 +69,13 @@ export default function Header() {
   const { data: cycleBalance } = useGetCycleBalance(
     isAuthenticated && !!userProfile,
   );
+  const { data: frontendCycleBalance } = useGetFrontendCycleBalance(
+    isAuthenticated && !!userProfile,
+  );
   const isLowOnCycles =
-    cycleBalance !== undefined && cycleBalance < LOW_CYCLES_THRESHOLD;
+    (cycleBalance !== undefined && cycleBalance < LOW_CYCLES_THRESHOLD) ||
+    (frontendCycleBalance != null &&
+      frontendCycleBalance < LOW_CYCLES_THRESHOLD);
 
   const handleAuth = async () => {
     if (isAuthenticated) {

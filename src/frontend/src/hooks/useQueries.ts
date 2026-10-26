@@ -454,6 +454,23 @@ export function useGetCycleBalance(enabled: boolean) {
   });
 }
 
+// Update call (reads the frontend's status), so it is cached for 5 minutes.
+export function useGetFrontendCycleBalance(enabled: boolean) {
+  const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
+
+  return useQuery<bigint | null>({
+    queryKey: ["frontendCycleBalance", principalId],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getFrontendCycleBalance();
+    },
+    enabled: enabled && !!actor && !isFetching && !!identity,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useGetWalletCycles(enabled: boolean) {
   const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
@@ -481,6 +498,7 @@ export function useClaimCycles() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["walletCycles"] });
       queryClient.invalidateQueries({ queryKey: ["cycleBalance"] });
+      queryClient.invalidateQueries({ queryKey: ["frontendCycleBalance"] });
     },
   });
 }
