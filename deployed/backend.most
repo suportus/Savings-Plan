@@ -51,6 +51,7 @@ actor {
       var size : Nat__796014343
     };
   stable emptyEmergencyFund : {bankAmount : Float; cashAmount : Float};
+  stable var goalsCreatedBackfilled : Bool;
   stable var nextId : Nat;
   stable savingGoals :
     {
