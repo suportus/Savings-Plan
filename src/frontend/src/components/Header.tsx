@@ -8,12 +8,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useQueryClient } from "@tanstack/react-query";
-import { BarChart3, Info, LogOut, Moon, Pencil, Sun, User } from "lucide-react";
+import {
+  BarChart3,
+  Fuel,
+  Info,
+  LogOut,
+  Moon,
+  Pencil,
+  Sun,
+  User,
+} from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
 import { Currency, ThemePreference } from "../backend";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useGetCallerUserProfile,
   useUpdateThemePreference,
@@ -21,6 +30,7 @@ import {
   useUpdateUserName,
 } from "../hooks/useQueries";
 import AboutShareModal from "./AboutShareModal";
+import CyclesModal from "./CyclesModal";
 import StatisticsModal from "./StatisticsModal";
 
 export default function Header() {
@@ -29,6 +39,7 @@ export default function Header() {
   const queryClient = useQueryClient();
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [showStatisticsModal, setShowStatisticsModal] = useState(false);
+  const [showCyclesModal, setShowCyclesModal] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
   const { theme, setTheme } = useTheme();
@@ -124,7 +135,7 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img
-                src="https://nar7q-4iaaa-aaaao-qksbq-cai.raw.icp0.io/Caffeine/pictures/Savingsplan.png"
+                src="/icons/icon-192.png"
                 alt="Savings Plan Logo"
                 className="w-10 h-10 rounded-lg object-contain"
               />
@@ -216,6 +227,13 @@ export default function Header() {
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Statistics
                     </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowCyclesModal(true)}
+                      className="cursor-pointer"
+                    >
+                      <Fuel className="w-4 h-4 mr-2" />
+                      Cycles
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1.5">
                       <div className="flex items-center gap-1 text-sm">
@@ -262,6 +280,11 @@ export default function Header() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              ) : isAuthenticated ? (
+                <Button onClick={handleLogout} variant="outline">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
               ) : (
                 <Button
                   onClick={handleAuth}
@@ -292,6 +315,7 @@ export default function Header() {
         open={showStatisticsModal}
         onOpenChange={setShowStatisticsModal}
       />
+      <CyclesModal open={showCyclesModal} onOpenChange={setShowCyclesModal} />
     </>
   );
 }

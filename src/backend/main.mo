@@ -7,18 +7,133 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Float "mo:core/Float";
+import Cycles "mo:core/Cycles";
 
-import AccessControl "mo:caffeineai-authorization/access-control";
-import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
-import MixinViews "mo:caffeineai-data-viewer/MixinViews";
+actor SavingsPlan {
+  // Only principals in this list may read or write data.
+  // The list is managed by a canister controller (your icp identity).
+  let allowedUsers = Map.empty<Principal, Bool>();
 
+  // ---------- Access control ----------
 
-// Apply migration using the with-clause
+  func requireUser(caller : Principal) {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Anonymous access is not allowed");
+    };
+    if (not allowedUsers.containsKey(caller)) {
+      Runtime.trap("Access denied");
+    };
+  };
 
-actor {
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState, null);
-  include MixinViews();
+  func requireController(caller : Principal) {
+    if (not caller.isController()) {
+      Runtime.trap("Only a canister controller can do this");
+    };
+  };
+
+  public shared ({ caller }) func addUser(user : Principal) : async () {
+    requireController(caller);
+    allowedUsers.add(user, true);
+  };
+
+  public shared ({ caller }) func removeUser(user : Principal) : async () {
+    requireController(caller);
+    allowedUsers.remove(user);
+  };
+
+  public shared ({ caller }) func listUsers() : async [Principal] {
+    requireController(caller);
+    allowedUsers.keys().toArray();
+  };
+
+  // Cycle balance of this (backend) canister, shown in the Cycles dialog.
+  public shared query ({ caller }) func getCycleBalance() : async Nat {
+    requireUser(caller);
+    Cycles.balance();
+  };
+
+  // ---------- Top-up from a wallet (cycles ledger) ----------
+
+  // Cycles held in a wallet (e.g. Oisy) are tokens on the cycles ledger.
+  // Sending them to this canister's principal only credits its ledger
+  // account; `claimCycles` moves them onto a canister's real cycle balance.
+  type LedgerAccount = { owner : Principal; subaccount : ?Blob };
+  type WithdrawArgs = {
+    amount : Nat;
+    from_subaccount : ?Blob;
+    to : Principal;
+    created_at_time : ?Nat64;
+  };
+  type RejectionCode = {
+    #NoError;
+    #CanisterError;
+    #SysTransient;
+    #DestinationInvalid;
+    #Unknown;
+    #SysFatal;
+    #CanisterReject;
+  };
+  type WithdrawError = {
+    #GenericError : { message : Text; error_code : Nat };
+    #TemporarilyUnavailable;
+    #FailedToWithdraw : {
+      fee_block : ?Nat;
+      rejection_code : RejectionCode;
+      rejection_reason : Text;
+    };
+    #Duplicate : { duplicate_of : Nat };
+    #BadFee : { expected_fee : Nat };
+    #InvalidReceiver : { receiver : Principal };
+    #CreatedInFuture : { ledger_time : Nat64 };
+    #TooOld;
+    #InsufficientFunds : { balance : Nat };
+  };
+
+  transient let cyclesLedger = actor "um5iw-rqaaa-aaaaq-qaaba-cai" : actor {
+    icrc1_balance_of : shared query LedgerAccount -> async Nat;
+    withdraw : shared WithdrawArgs -> async { #Ok : Nat; #Err : WithdrawError };
+  };
+  transient let cyclesLedgerFee = 100_000_000;
+
+  // Cycles waiting in this canister's cycles-ledger account. An update call:
+  // the cycles ledger is on another subnet, which a composite query can't reach.
+  public shared ({ caller }) func getWalletCycles() : async Nat {
+    requireUser(caller);
+    await cyclesLedger.icrc1_balance_of({
+      owner = Principal.fromActor(SavingsPlan);
+      subaccount = null;
+    });
+  };
+
+  // Moves all waiting cycles (minus the ledger fee) onto the backend or the
+  // frontend canister. Returns the amount moved.
+  public shared ({ caller }) func claimCycles(target : { #backend; #frontend }) : async Nat {
+    requireUser(caller);
+    let self = Principal.fromActor(SavingsPlan);
+    let to = switch (target) {
+      case (#backend) { self };
+      case (#frontend) {
+        switch (Runtime.envVar<system>("PUBLIC_CANISTER_ID:frontend")) {
+          case (?id) { Principal.fromText(id) };
+          case (null) { Runtime.trap("Frontend canister ID is not configured") };
+        };
+      };
+    };
+    let balance = await cyclesLedger.icrc1_balance_of({
+      owner = self;
+      subaccount = null;
+    });
+    if (balance <= cyclesLedgerFee) {
+      Runtime.trap("No cycles to claim");
+    };
+    let amount : Nat = balance - cyclesLedgerFee;
+    switch (await cyclesLedger.withdraw({ amount; from_subaccount = null; to; created_at_time = null })) {
+      case (#Ok(_)) { amount };
+      case (#Err(e)) { Runtime.trap("Withdraw failed: " # debug_show (e)) };
+    };
+  };
+
+  // ---------- Profiles ----------
 
   public type ThemePreference = { #light; #dark };
   public type Currency = { #eur; #usd };
@@ -32,29 +147,23 @@ actor {
   let userProfiles = Map.empty<Principal, UserProfile>();
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap(
-        "Unauthorized: Only users can access profiles"
-      );
-    };
+    requireUser(caller);
     userProfiles.get(caller);
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
+    requireUser(caller);
     userProfiles.add(caller, profile);
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not (AccessControl.isAdmin(
-      accessControlState,
-      caller,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Can only view your own profile"
-      );
+    // Your own profile, or any profile for a canister controller.
+    if (caller.isController()) {
+      return userProfiles.get(user);
+    };
+    requireUser(caller);
+    if (caller != user) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
   };
@@ -108,15 +217,7 @@ actor {
   let userStatistics = Map.empty<Principal, Statistics>();
 
   public shared ({ caller }) func createSavingGoal(data : SavingGoalDTO) : async SavingGoalId {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can create saving goals"
-      );
-    };
+    requireUser(caller);
 
     let idText = nextId.toText();
     nextId += 1;
@@ -169,28 +270,12 @@ actor {
   };
 
   public query ({ caller }) func getAllSavingGoals() : async [SavingGoal] {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can view saving goals"
-      );
-    };
+    requireUser(caller);
     getAllSavingGoalsForUser(caller);
   };
 
   public query ({ caller }) func getSavingGoal(id : SavingGoalId) : async ?SavingGoal {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can view saving goals"
-      );
-    };
+    requireUser(caller);
 
     switch (savingGoals.get(caller)) {
       case (?goals) { goals.get(id) };
@@ -202,15 +287,7 @@ actor {
     id : SavingGoalId,
     data : SavingGoalDTO
   ) : async () {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can update saving goals"
-      );
-    };
+    requireUser(caller);
 
     switch (savingGoals.get(caller)) {
       case (?goals) {
@@ -224,14 +301,18 @@ actor {
                 "Current saved amount cannot exceed target amount"
               );
             };
-            switch (data.deadline) {
-              case (?deadline) {
-                let currentTime = Time.now();
-                if (deadline <= currentTime) {
-                  Runtime.trap("Deadline must be in the future");
+            // Only a new or changed deadline must be in the future, so a goal
+            // whose deadline has passed can still be edited.
+            if (data.deadline != existingGoal.deadline) {
+              switch (data.deadline) {
+                case (?deadline) {
+                  let currentTime = Time.now();
+                  if (deadline <= currentTime) {
+                    Runtime.trap("Deadline must be in the future");
+                  };
                 };
+                case (null) {};
               };
-              case (null) {};
             };
             let updatedGoal : SavingGoal = {
               id = id;
@@ -256,15 +337,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteSavingGoal(id : SavingGoalId) : async () {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can delete saving goals"
-      );
-    };
+    requireUser(caller);
 
     switch (savingGoals.get(caller)) {
       case (?goals) {
@@ -284,15 +357,7 @@ actor {
     currency : ?Currency,
     deadline : ?Time.Time
   ) : async [SavingGoal] {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can view saving goals"
-      );
-    };
+    requireUser(caller);
 
     let allGoals = getAllSavingGoalsForUser(caller);
     let filteredGoals = allGoals.filter(
@@ -319,15 +384,7 @@ actor {
   };
 
   public shared ({ caller }) func updateEmergencyFund(bank : Float, cash : Float) : async () {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can update emergency fund"
-      );
-    };
+    requireUser(caller);
     if (bank < 0.0 or cash < 0.0) {
       Runtime.trap("Amounts cannot be negative");
     };
@@ -336,15 +393,7 @@ actor {
   };
 
   public query ({ caller }) func getEmergencyFund() : async EmergencyFund {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can access emergency fund"
-      );
-    };
+    requireUser(caller);
     switch (emergencyFunds.get(caller)) {
       case (?fund) { fund };
       case (null) { emptyEmergencyFund };
@@ -352,11 +401,7 @@ actor {
   };
 
   public query ({ caller }) func getAllEmergencyFunds() : async [(Principal, EmergencyFund)] {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap(
-        "Unauthorized: Only admins can view all emergency funds"
-      );
-    };
+    requireController(caller);
     emergencyFunds.entries().toArray();
   };
 
@@ -366,15 +411,7 @@ actor {
     totalSavedAmount : Float;
     biggestAchievement : Float;
   } {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can access statistics"
-      );
-    };
+    requireUser(caller);
     switch (userStatistics.get(caller)) {
       case (?stats) {
         ?{
@@ -389,15 +426,7 @@ actor {
   };
 
   public shared ({ caller }) func addToCurrentSavedAmount(id : SavingGoalId, amount : Float) : async () {
-    if (not (AccessControl.hasPermission(
-      accessControlState,
-      caller,
-      #user,
-    ))) {
-      Runtime.trap(
-        "Unauthorized: Only users can update saving goals"
-      );
-    };
+    requireUser(caller);
     if (amount <= 0.0) {
       Runtime.trap("Amount to add must be positive");
     };

@@ -15,7 +15,8 @@ interface AboutShareModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const APP_URL = "https://savings-plan-b8g.caffeine.xyz/";
+// The address this app is served from (the frontend canister URL).
+const APP_URL = `${window.location.origin}/`;
 
 export default function AboutShareModal({
   open,

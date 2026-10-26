@@ -1,5 +1,3 @@
-import { createActor } from "@/backend";
-import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
@@ -11,7 +9,11 @@ import type {
   SavingGoalDTO,
   ThemePreference,
   UserProfile,
+  Variant_frontend_backend,
 } from "../backend";
+import { isAccessDenied } from "../lib/canisterEnv";
+import { useActor } from "./useActor";
+import { useInternetIdentity } from "./useInternetIdentity";
 
 // Helper to extract user-friendly error messages from backend traps
 function parseBackendError(error: Error): string {
@@ -54,7 +56,7 @@ function parseBackendError(error: Error): string {
 }
 
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor(createActor);
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
   const { setTheme } = useTheme();
 
@@ -96,7 +98,7 @@ export function useGetCallerUserProfile() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -120,7 +122,7 @@ export function useSaveCallerUserProfile() {
 }
 
 export function useUpdateThemePreference() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -151,7 +153,7 @@ export function useUpdateThemePreference() {
 }
 
 export function useUpdateUserCurrency() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -189,7 +191,7 @@ export function useUpdateUserCurrency() {
 }
 
 export function useUpdateUserName() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -222,7 +224,7 @@ export function useUpdateUserName() {
 }
 
 export function useGetAllSavingGoals() {
-  const { actor, isFetching } = useActor(createActor);
+  const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
 
@@ -233,6 +235,8 @@ export function useGetAllSavingGoals() {
       try {
         return await actor.getAllSavingGoals();
       } catch (error: any) {
+        // Not on the allow-list: the access-denied screen explains it.
+        if (isAccessDenied(error)) return [];
         const friendlyMessage = parseBackendError(error);
         toast.error(`Failed to load goals: ${friendlyMessage}`);
         return [];
@@ -243,7 +247,7 @@ export function useGetAllSavingGoals() {
 }
 
 export function useCreateSavingGoal() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -266,7 +270,7 @@ export function useCreateSavingGoal() {
 }
 
 export function useUpdateSavingGoal() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -289,7 +293,7 @@ export function useUpdateSavingGoal() {
 }
 
 export function useDeleteSavingGoal() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -312,7 +316,7 @@ export function useDeleteSavingGoal() {
 }
 
 export function useAddToCurrentSavedAmount() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -337,7 +341,7 @@ export function useAddToCurrentSavedAmount() {
 // Emergency Fund Hooks
 
 export function useGetEmergencyFund() {
-  const { actor, isFetching } = useActor(createActor);
+  const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
 
@@ -358,7 +362,7 @@ export function useGetEmergencyFund() {
 }
 
 export function useUpdateEmergencyFund() {
-  const { actor } = useActor(createActor);
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
@@ -384,7 +388,7 @@ export function useUpdateEmergencyFund() {
 // Statistics Hooks
 
 export function useGetStatistics() {
-  const { actor, isFetching } = useActor(createActor);
+  const { actor, isFetching } = useActor();
   const { identity } = useInternetIdentity();
   const principalId = identity?.getPrincipal().toString() || "anonymous";
 
@@ -409,5 +413,53 @@ export function useGetStatistics() {
       }
     },
     enabled: !!actor && !isFetching && !!identity,
+  });
+}
+
+// Cycles Hooks
+
+export function useGetCycleBalance(enabled: boolean) {
+  const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
+
+  return useQuery<bigint>({
+    queryKey: ["cycleBalance", principalId],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getCycleBalance();
+    },
+    enabled: enabled && !!actor && !isFetching && !!identity,
+  });
+}
+
+export function useGetWalletCycles(enabled: boolean) {
+  const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
+
+  return useQuery<bigint>({
+    queryKey: ["walletCycles", principalId],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getWalletCycles();
+    },
+    enabled: enabled && !!actor && !isFetching && !!identity,
+  });
+}
+
+export function useClaimCycles() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (target: Variant_frontend_backend) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.claimCycles(target);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["walletCycles"] });
+      queryClient.invalidateQueries({ queryKey: ["cycleBalance"] });
+    },
   });
 }

@@ -1,3 +1,8 @@
-## 
+# Savings Plan
 
-To run app build and run docker image: `docker build -t app . docker run -it --network host app`
+A personal savings-goals and emergency-fund dashboard on the Internet Computer.
+
+- Backend: Motoko canister (`src/backend/main.mo`), access limited to an allow-list.
+- Frontend: React + Vite (`src/frontend`), sign-in with Internet Identity.
+
+Deploying, managing users and topping up cycles: see [UPDATING.md](UPDATING.md).

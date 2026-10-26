@@ -1,29 +1,41 @@
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-import { useInternetIdentity } from "@caffeineai/core-infrastructure";
+import { useQueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useState } from "react";
 import CreateGoalForm from "./components/CreateGoalForm";
 import Dashboard from "./components/Dashboard";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
+import { PrincipalDisplay } from "./components/PrincipalDisplay";
 import ProfileSetupModal from "./components/ProfileSetupModal";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
 import {
   useGetAllSavingGoals,
   useGetCallerUserProfile,
 } from "./hooks/useQueries";
+import { isAccessDenied } from "./lib/canisterEnv";
 
 export default function App() {
-  const { identity, isInitializing } = useInternetIdentity();
+  const { identity, isInitializing, clear } = useInternetIdentity();
+  const queryClient = useQueryClient();
   const {
     data: userProfile,
     isLoading: profileLoading,
     isFetched,
+    error: profileError,
   } = useGetCallerUserProfile();
   const { data: savingGoals = [], isLoading: goalsLoading } =
     useGetAllSavingGoals();
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const isAuthenticated = !!identity;
+  const principal = identity?.getPrincipal().toText() ?? "";
+
+  const handleLogout = () => {
+    clear();
+    queryClient.clear();
+  };
   const showProfileSetup =
     isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
@@ -51,7 +63,7 @@ export default function App() {
               <div className="mb-8">
                 <div className="w-32 h-32 mx-auto mb-6 flex items-center justify-center">
                   <img
-                    src="https://nar7q-4iaaa-aaaao-qksbq-cai.raw.icp0.io/Caffeine/pictures/Savingsplan.png"
+                    src="/icons/icon-512.png"
                     alt="Savings Plan Logo"
                     className="w-full h-full object-contain"
                   />
@@ -107,6 +119,35 @@ export default function App() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          ) : profileError ? (
+            // Not on the allow-list (or backend unreachable): show the
+            // principal so it can be added with addUser.
+            <div className="max-w-xl mx-auto py-16">
+              <div className="bg-card border border-border rounded-xl p-8 shadow-sm transition-colors duration-300 space-y-6">
+                <div className="text-center space-y-2">
+                  <h2 className="text-2xl font-semibold">
+                    {isAccessDenied(profileError)
+                      ? "Access denied"
+                      : "Connection error"}
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {isAccessDenied(profileError)
+                      ? "This account does not have access yet. Send the principal below to the administrator so it can be added."
+                      : "Could not reach the backend. Please try again later."}
+                  </p>
+                </div>
+                <div className="bg-muted/50 rounded-lg px-3 py-2">
+                  <PrincipalDisplay principal={principal} />
+                </div>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Logout
+                </Button>
               </div>
             </div>
           ) : showProfileSetup ? (
