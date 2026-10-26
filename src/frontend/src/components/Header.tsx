@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
+  Download,
   Fuel,
   Info,
   LogOut,
@@ -21,16 +22,20 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Currency, ThemePreference } from "../backend";
+import { useActor } from "../hooks/useActor";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 import {
   useGetCallerUserProfile,
+  useGetCycleBalance,
   useUpdateThemePreference,
   useUpdateUserCurrency,
   useUpdateUserName,
 } from "../hooks/useQueries";
+import { downloadMyData } from "../lib/exportData";
 import AboutShareModal from "./AboutShareModal";
-import CyclesModal from "./CyclesModal";
+import CyclesModal, { LOW_CYCLES_THRESHOLD } from "./CyclesModal";
 import StatisticsModal from "./StatisticsModal";
 
 export default function Header() {
@@ -47,8 +52,24 @@ export default function Header() {
   const { mutate: updateCurrency } = useUpdateUserCurrency();
   const { mutate: updateName } = useUpdateUserName();
 
+  const { actor } = useActor();
   const isAuthenticated = !!identity;
   const disabled = loginStatus === "logging-in";
+
+  const handleExport = async () => {
+    if (!actor) return;
+    try {
+      await downloadMyData(actor);
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Failed to export data");
+    }
+  };
+  const { data: cycleBalance } = useGetCycleBalance(
+    isAuthenticated && !!userProfile,
+  );
+  const isLowOnCycles =
+    cycleBalance !== undefined && cycleBalance < LOW_CYCLES_THRESHOLD;
 
   const handleAuth = async () => {
     if (isAuthenticated) {
@@ -155,11 +176,19 @@ export default function Header() {
                       type="button"
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-background"
                     >
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="bg-emerald-500 text-white text-xs">
-                          {getInitials(userProfile.name)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <span className="relative">
+                        <Avatar className="w-8 h-8">
+                          <AvatarFallback className="bg-emerald-500 text-white text-xs">
+                            {getInitials(userProfile.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        {isLowOnCycles && (
+                          <span
+                            className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-destructive ring-2 ring-background"
+                            title="Low on cycles"
+                          />
+                        )}
+                      </span>
                       <span className="text-sm font-medium hidden sm:inline">
                         {userProfile.name}
                       </span>
@@ -233,6 +262,18 @@ export default function Header() {
                     >
                       <Fuel className="w-4 h-4 mr-2" />
                       Cycles
+                      {isLowOnCycles && (
+                        <span className="ml-auto text-xs font-medium text-destructive">
+                          Low
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleExport}
+                      className="cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export data
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <div className="px-2 py-1.5">

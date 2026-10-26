@@ -33,7 +33,6 @@ import {
 import { formatDateByCurrency } from "../lib/dateUtils";
 import { calculateMonthlyTarget } from "../utils/monthlyTarget";
 import EditGoalDialog from "./EditGoalDialog";
-import { updateLifetimeStatsOnGoalCompleted } from "./StatisticsModal";
 
 interface GoalCardProps {
   goal: SavingGoal;
@@ -135,9 +134,6 @@ export default function GoalCard({ goal }: GoalCardProps) {
       confettiLoaded &&
       window.confetti
     ) {
-      // Update lifetime statistics
-      updateLifetimeStatsOnGoalCompleted(goal.targetAmount);
-
       // Trigger confetti celebration
       const duration = 3000;
       const animationEnd = Date.now() + duration;
@@ -174,7 +170,7 @@ export default function GoalCard({ goal }: GoalCardProps) {
 
     // Update previous progress
     previousProgressRef.current = progress;
-  }, [progress, confettiLoaded, goal.targetAmount]);
+  }, [progress, confettiLoaded]);
 
   const handleDelete = () => {
     deleteGoal(goal.id);

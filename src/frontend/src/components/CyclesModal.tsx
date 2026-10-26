@@ -24,7 +24,7 @@ interface CyclesModalProps {
 }
 
 // Below this balance the dialog shows a warning (1 T cycles).
-const LOW_CYCLES_THRESHOLD = 1_000_000_000_000n;
+export const LOW_CYCLES_THRESHOLD = 1_000_000_000_000n;
 
 // Fee the cycles ledger charges for each withdraw (100 M cycles).
 const CYCLES_LEDGER_FEE = 100_000_000n;

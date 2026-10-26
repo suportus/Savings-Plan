@@ -16,7 +16,6 @@ import {
   useCreateSavingGoal,
   useGetCallerUserProfile,
 } from "../hooks/useQueries";
-import { updateLifetimeStatsOnGoalCreated } from "./StatisticsModal";
 
 interface CreateGoalFormProps {
   onClose: () => void;
@@ -57,8 +56,6 @@ export default function CreateGoalForm({ onClose }: CreateGoalFormProps) {
       },
       {
         onSuccess: () => {
-          // Update lifetime statistics
-          updateLifetimeStatsOnGoalCreated();
           onClose();
         },
       },

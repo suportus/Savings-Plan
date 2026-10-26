@@ -416,6 +416,27 @@ export function useGetStatistics() {
   });
 }
 
+export function useResetStatistics() {
+  const { actor } = useActor();
+  const { identity } = useInternetIdentity();
+  const queryClient = useQueryClient();
+  const principalId = identity?.getPrincipal().toString() || "anonymous";
+
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.resetStatistics();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["statistics", principalId] });
+    },
+    onError: (error: Error) => {
+      const friendlyMessage = parseBackendError(error);
+      toast.error(`Failed to reset statistics: ${friendlyMessage}`);
+    },
+  });
+}
+
 // Cycles Hooks
 
 export function useGetCycleBalance(enabled: boolean) {

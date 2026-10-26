@@ -71,6 +71,7 @@ export interface _SERVICE {
   'getWalletCycles' : ActorMethod<[], bigint>,
   'listUsers' : ActorMethod<[], Array<Principal>>,
   'removeUser' : ActorMethod<[Principal], undefined>,
+  'resetStatistics' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateEmergencyFund' : ActorMethod<[number, number], undefined>,
   'updateSavingGoal' : ActorMethod<[SavingGoalId, SavingGoalDTO], undefined>,

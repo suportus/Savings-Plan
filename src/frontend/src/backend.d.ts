@@ -78,6 +78,7 @@ export interface backendInterface {
     getWalletCycles(): Promise<bigint>;
     listUsers(): Promise<Array<Principal>>;
     removeUser(user: Principal): Promise<void>;
+    resetStatistics(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateEmergencyFund(bank: number, cash: number): Promise<void>;
     updateSavingGoal(id: SavingGoalId, data: SavingGoalDTO): Promise<void>;

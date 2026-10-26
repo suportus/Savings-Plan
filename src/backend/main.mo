@@ -216,6 +216,39 @@ actor SavingsPlan {
 
   let userStatistics = Map.empty<Principal, Statistics>();
 
+  // One-time fix: totalGoalsCreated was never counted before, so on the first
+  // upgrade it starts at each user's current number of goals.
+  var goalsCreatedBackfilled = false;
+
+  system func postupgrade() {
+    if (not goalsCreatedBackfilled) {
+      for ((user, goals) in savingGoals.entries()) {
+        let stats = statsFor(user);
+        if (stats.totalGoalsCreated < goals.size()) {
+          stats.totalGoalsCreated := goals.size();
+        };
+      };
+      goalsCreatedBackfilled := true;
+    };
+  };
+
+  // The caller's statistics, created (all zero) if missing.
+  func statsFor(caller : Principal) : Statistics {
+    switch (userStatistics.get(caller)) {
+      case (?stats) { stats };
+      case (null) {
+        let newStats : Statistics = {
+          var totalGoalsCreated = 0;
+          var completedGoals = 0;
+          var totalSavedAmount = 0.0;
+          var biggestAchievement = 0.0;
+        };
+        userStatistics.add(caller, newStats);
+        newStats;
+      };
+    };
+  };
+
   public shared ({ caller }) func createSavingGoal(data : SavingGoalDTO) : async SavingGoalId {
     requireUser(caller);
 
@@ -257,6 +290,7 @@ actor SavingsPlan {
     userGoals.add(idText, newGoal);
     savingGoals.add(caller, userGoals);
 
+    statsFor(caller).totalGoalsCreated += 1;
     updateStatsForGoalCompletion(caller, newGoal, null);
 
     idText;
@@ -423,6 +457,12 @@ actor SavingsPlan {
       };
       case (null) { null };
     };
+  };
+
+  // Clears the caller's statistics (the "Reset Stats" button).
+  public shared ({ caller }) func resetStatistics() : async () {
+    requireUser(caller);
+    userStatistics.remove(caller);
   };
 
   public shared ({ caller }) func addToCurrentSavedAmount(id : SavingGoalId, amount : Float) : async () {

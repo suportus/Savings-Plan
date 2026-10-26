@@ -24,96 +24,40 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useGetAllSavingGoals } from "../hooks/useQueries";
+import { useGetStatistics, useResetStatistics } from "../hooks/useQueries";
 
 interface StatisticsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface LifetimeStats {
-  lifetimeGoalsCreated: number;
-  lifetimeGoalsCompleted: number;
-  lifetimeAmountSaved: number;
-  biggestAchievement: number;
-}
-
-const STORAGE_KEY = "savings-plan-lifetime-stats";
-
-function getLifetimeStats(): LifetimeStats {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (error) {
-    console.error("Failed to load lifetime stats:", error);
-  }
-  return {
-    lifetimeGoalsCreated: 0,
-    lifetimeGoalsCompleted: 0,
-    lifetimeAmountSaved: 0,
-    biggestAchievement: 0,
-  };
-}
-
-function saveLifetimeStats(stats: LifetimeStats): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-  } catch (error) {
-    console.error("Failed to save lifetime stats:", error);
-  }
-}
-
-export function updateLifetimeStatsOnGoalCreated(): void {
-  const stats = getLifetimeStats();
-  stats.lifetimeGoalsCreated += 1;
-  saveLifetimeStats(stats);
-}
-
-export function updateLifetimeStatsOnGoalCompleted(targetAmount: number): void {
-  const stats = getLifetimeStats();
-  stats.lifetimeGoalsCompleted += 1;
-  stats.lifetimeAmountSaved += targetAmount;
-  stats.biggestAchievement = Math.max(stats.biggestAchievement, targetAmount);
-  saveLifetimeStats(stats);
-}
-
 export default function StatisticsModal({
   open,
   onOpenChange,
 }: StatisticsModalProps) {
-  const { isLoading } = useGetAllSavingGoals();
+  // Statistics are kept in the backend, so they are the same on every device.
+  const { data: stats, isLoading, refetch } = useGetStatistics();
+  const { mutate: resetStatistics } = useResetStatistics();
   const [showResetDialog, setShowResetDialog] = useState(false);
-  const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats>(
-    getLifetimeStats(),
-  );
 
   // Refresh stats when modal opens
   useEffect(() => {
     if (open) {
-      setLifetimeStats(getLifetimeStats());
+      refetch();
     }
-  }, [open]);
+  }, [open, refetch]);
 
   const handleResetStats = () => {
-    const resetStats: LifetimeStats = {
-      lifetimeGoalsCreated: 0,
-      lifetimeGoalsCompleted: 0,
-      lifetimeAmountSaved: 0,
-      biggestAchievement: 0,
-    };
-    saveLifetimeStats(resetStats);
-    setLifetimeStats(resetStats);
+    resetStatistics();
     setShowResetDialog(false);
   };
 
-  const totalGoals = lifetimeStats.lifetimeGoalsCreated;
-  const completedGoals = lifetimeStats.lifetimeGoalsCompleted;
+  const totalGoals = Number(stats?.totalGoalsCreated ?? 0n);
+  const completedGoals = Number(stats?.completedGoals ?? 0n);
   const successRate =
     totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : "0.0";
-  const totalSaved = lifetimeStats.lifetimeAmountSaved;
-  const biggestAchievement = lifetimeStats.biggestAchievement;
+  const totalSaved = stats?.totalSavedAmount ?? 0;
+  const biggestAchievement = stats?.biggestAchievement ?? 0;
 
   return (
     <>

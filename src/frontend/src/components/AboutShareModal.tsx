@@ -99,15 +99,7 @@ export default function AboutShareModal({
           </Button>
 
           <div className="text-center text-sm text-muted-foreground pt-4 border-t border-border w-full mt-2">
-            © 2026. Built with ❤️ using{" "}
-            <a
-              href="https://caffeine.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-emerald-500 hover:text-emerald-600 transition-colors underline-offset-2 hover:underline"
-            >
-              caffeine.ai
-            </a>
+            © 2026 Savings Plan
           </div>
         </div>
       </DialogContent>

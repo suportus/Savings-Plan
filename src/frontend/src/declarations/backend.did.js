@@ -92,6 +92,7 @@ export const idlFactory = ({ IDL }) => {
     'getWalletCycles' : IDL.Func([], [IDL.Nat], []),
     'listUsers' : IDL.Func([], [IDL.Vec(IDL.Principal)], []),
     'removeUser' : IDL.Func([IDL.Principal], [], []),
+    'resetStatistics' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateEmergencyFund' : IDL.Func([IDL.Float64, IDL.Float64], [], []),
     'updateSavingGoal' : IDL.Func([SavingGoalId, SavingGoalDTO], [], []),
